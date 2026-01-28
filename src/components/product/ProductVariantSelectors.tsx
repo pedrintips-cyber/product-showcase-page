@@ -30,7 +30,7 @@ export function ColorSelector({ colors, value, onChange }: ColorSelectorProps) {
             variant="outline"
             size="sm"
             className={cn(
-              "rounded-full px-3",
+              "rounded-full px-2.5 sm:px-3",
               "data-[state=on]:shadow-none",
             )}
             aria-label={`Cor ${c.label}`}
@@ -66,7 +66,7 @@ export function SizeSelector({ sizes, value, onChange, action }: SizeSelectorPro
             variant="outline"
             size="sm"
             className={cn(
-              "h-10 w-full justify-center rounded-md",
+              "h-9 w-full justify-center rounded-md sm:h-10",
               "data-[state=on]:shadow-none",
             )}
             aria-label={`Tamanho ${s.label}`}

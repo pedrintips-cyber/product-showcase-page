@@ -8,11 +8,11 @@ type StoreFooterProps = {
 
 export function StoreFooter({ brandName }: StoreFooterProps) {
   return (
-    <footer className="mt-14 border-t bg-background safe-bottom">
-      <div className="mx-auto w-full max-w-screen-2xl px-4 py-12 sm:px-6 lg:px-10">
+    <footer className="mt-10 border-t bg-background safe-bottom sm:mt-14">
+      <div className="mx-auto w-full max-w-screen-2xl px-4 py-10 sm:px-6 sm:py-12 lg:px-10">
         <div className="grid gap-6 lg:grid-cols-4">
           <div className="space-y-3">
-            <div className="text-lg font-semibold tracking-tight">{brandName}</div>
+            <div className="text-base font-semibold tracking-tight sm:text-lg">{brandName}</div>
             <p className="text-sm leading-relaxed text-muted-foreground">
               Uma página de produto com cara de loja completa — feita pra vender com confiança.
             </p>
