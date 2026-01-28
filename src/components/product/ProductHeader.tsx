@@ -1,7 +1,8 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Menu, Search, ShoppingBag } from "lucide-react";
+import { Menu, Search } from "lucide-react";
+import logoBlumi from "@/assets/logo-blumi.png";
 
 type ProductHeaderProps = {
   brandName: string;
@@ -27,15 +28,21 @@ export function ProductHeader({ brandName }: ProductHeaderProps) {
           <a href="#" className="group inline-flex items-center gap-2">
             <span
               className={cn(
-                "grid h-9 w-9 place-items-center rounded-xl border bg-background text-foreground sm:h-10 sm:w-10",
+                "grid h-9 w-9 place-items-center overflow-hidden rounded-xl border bg-background sm:h-10 sm:w-10",
                 "transition-transform group-hover:scale-[1.02]",
               )}
               aria-hidden="true"
             >
-              <ShoppingBag className="h-4 w-4 sm:h-5 sm:w-5" />
+              <img
+                src={logoBlumi}
+                alt=""
+                className="h-full w-full object-cover"
+                loading="eager"
+                decoding="async"
+              />
             </span>
             <div className="leading-tight">
-              <div className="text-sm font-semibold tracking-tight">{brandName}</div>
+              <div className="font-serif text-sm font-semibold tracking-tight">{brandName}</div>
               <div className="text-xs text-muted-foreground">Página do produto</div>
             </div>
           </a>
