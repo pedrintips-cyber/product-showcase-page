@@ -129,6 +129,17 @@ All colors MUST be HSL.
 }
 
 @layer base {
+  html {
+    font-size: 16px;
+  }
+
+  /* Mobile: reduz a “escala” geral ~15% sem mexer em cada componente */
+  @media (max-width: 640px) {
+    html {
+      font-size: 13.6px;
+    }
+  }
+
   * {
     @apply border-border;
   }
