@@ -6,13 +6,29 @@ import { ProductInfoSections } from "@/components/product/ProductInfoSections";
 import { ProductPurchasePanel } from "@/components/product/ProductPurchasePanel";
 import { ReviewsSection } from "@/components/product/ReviewsSection";
 import { StoreFooter } from "@/components/product/StoreFooter";
-import product1 from "@/assets/product-1.jpg";
-import product2 from "@/assets/product-2.jpg";
-import product3 from "@/assets/product-3.jpg";
+import leggingBlack1 from "@/assets/legging-black-1.jpg";
+import leggingBlack2 from "@/assets/legging-black-2.jpg";
+import leggingBlack3 from "@/assets/legging-black-3.jpg";
+import leggingNude from "@/assets/legging-nude.jpg";
+import leggingGraphite from "@/assets/legging-graphite.jpg";
+import leggingBlue from "@/assets/legging-blue.jpg";
 
 const BRAND = "Aqua Store";
 
 const Index = () => {
+  const [color, setColor] = React.useState("black");
+
+  const imagesByColor: Record<string, { src: string; alt: string }[]> = {
+    black: [
+      { src: leggingBlack1, alt: "Legging preta — foto 1" },
+      { src: leggingBlack2, alt: "Legging preta — foto 2" },
+      { src: leggingBlack3, alt: "Legging preta — foto 3" },
+    ],
+    nude: [{ src: leggingNude, alt: "Legging nude — foto 1" }],
+    graphite: [{ src: leggingGraphite, alt: "Legging grafite — foto 1" }],
+    blue: [{ src: leggingBlue, alt: "Legging azul — foto 1" }],
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <ProductHeader brandName={BRAND} />
@@ -21,35 +37,30 @@ const Index = () => {
         <div className="grid gap-8 lg:grid-cols-2 lg:items-start">
           <div className="lg:sticky lg:top-24">
             <ProductGallery
-              images={[
-                { src: product1, alt: "Foto do produto - imagem 1" },
-                { src: product2, alt: "Foto do produto - imagem 2" },
-                { src: product3, alt: "Foto do produto - imagem 3" },
-              ]}
+              images={imagesByColor[color] ?? imagesByColor.black}
             />
           </div>
 
           <div className="space-y-10">
             <ProductPurchasePanel
-              name="Tênis Aurora — Edição Verde-Água"
+              name="Legging Seamless Cintura Alta — Modeladora"
               price={279.9}
               compareAtPrice={349.9}
               rating={4.7}
               reviewsCount={214}
               colors={[
-                { label: "Verde-água", value: "teal" },
-                { label: "Neve", value: "snow" },
+                { label: "Preto", value: "black" },
+                { label: "Nude", value: "nude" },
                 { label: "Grafite", value: "graphite" },
+                { label: "Azul", value: "blue" },
               ]}
+              selectedColor={color}
+              onColorChange={setColor}
               sizes={[
-                { label: "34", value: "34" },
-                { label: "35", value: "35" },
-                { label: "36", value: "36" },
-                { label: "37", value: "37" },
-                { label: "38", value: "38" },
-                { label: "39", value: "39" },
-                { label: "40", value: "40" },
-                { label: "41", value: "41" },
+                { label: "P", value: "P" },
+                { label: "M", value: "M" },
+                { label: "G", value: "G" },
+                { label: "GG", value: "GG" },
               ]}
               onBuy={({ color, size, qty }) => {
                 toast.success("Pedido pronto! (demo)", {
@@ -59,18 +70,18 @@ const Index = () => {
             />
 
             <ProductInfoSections
-              description="Um tênis premium, leve e confortável, com acabamento minimalista e materiais que respiram. Ideal pra dia a dia — com um toque de destaque no verde-água."
+              description="Legging cintura alta com toque macio, compressão na medida e caimento que valoriza. Perfeita pra treino e dia a dia — sem transparência e com secagem rápida."
               highlights={[
-                "Palmilha anatômica com conforto imediato",
-                "Solado com excelente aderência",
-                "Cabedal respirável e fácil de limpar",
-                "Visual clean que combina com tudo",
+                "Cintura alta (modeladora)",
+                "Tecido canelado / seamless",
+                "Alta elasticidade e conforto",
+                "Respirável e secagem rápida",
               ]}
               specs={[
-                { label: "Forma", value: "Normal" },
-                { label: "Peso", value: "~290g" },
-                { label: "Material", value: "Têxtil premium" },
-                { label: "Solado", value: "Borracha" },
+                { label: "Modelagem", value: "Cintura alta" },
+                { label: "Elasticidade", value: "Alta" },
+                { label: "Tecido", value: "Seamless" },
+                { label: "Transparência", value: "Não" },
               ]}
             />
 

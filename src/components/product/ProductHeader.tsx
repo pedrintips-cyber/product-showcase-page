@@ -9,7 +9,7 @@ type ProductHeaderProps = {
 
 export function ProductHeader({ brandName }: ProductHeaderProps) {
   return (
-    <header className="sticky top-0 z-40 border-b bg-background/70 backdrop-blur supports-[backdrop-filter]:bg-background/50">
+    <header className="sticky top-0 z-40 border-b bg-background">
       <div className="container flex h-16 items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <button
@@ -27,8 +27,8 @@ export function ProductHeader({ brandName }: ProductHeaderProps) {
           <a href="#" className="group inline-flex items-center gap-2">
             <span
               className={cn(
-                "grid h-10 w-10 place-items-center rounded-xl bg-primary text-primary-foreground",
-                "shadow-glow transition-transform group-hover:scale-[1.02]",
+                "grid h-10 w-10 place-items-center rounded-xl border bg-background text-foreground",
+                "transition-transform group-hover:scale-[1.02]",
               )}
               aria-hidden="true"
             >
