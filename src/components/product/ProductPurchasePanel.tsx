@@ -69,7 +69,7 @@ export function ProductPurchasePanel({
           </Badge>
         </div>
 
-        <h1 className="text-balance text-2xl font-semibold tracking-tight sm:text-3xl lg:text-4xl">{name}</h1>
+        <h1 className="text-balance font-serif text-2xl font-semibold tracking-tight sm:text-3xl lg:text-4xl">{name}</h1>
 
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2">
@@ -88,7 +88,7 @@ export function ProductPurchasePanel({
           <div className="space-y-1">
             <div className="text-sm text-muted-foreground">Preço</div>
             <div className="flex items-baseline gap-3">
-              <div className="text-2xl font-semibold tracking-tight sm:text-3xl">{formatBRL(total)}</div>
+              <div className="font-serif text-2xl font-semibold tracking-tight sm:text-3xl">{formatBRL(total)}</div>
               {compareAtPrice ? (
                 <div className="flex items-center gap-2">
                   <div className="text-sm text-muted-foreground line-through">
