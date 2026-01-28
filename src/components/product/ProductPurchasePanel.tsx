@@ -1,7 +1,6 @@
 import * as React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Check, CreditCard, ShieldCheck, Truck } from "lucide-react";
 import { StarRating } from "@/components/product/StarRating";
@@ -69,11 +68,8 @@ export function ProductPurchasePanel({
         </div>
       </div>
 
-      <Card className="surface relative overflow-hidden rounded-2xl border p-5 shadow-elevated">
-        <div
-          className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-primary/15 blur-2xl"
-          aria-hidden="true"
-        />
+      {/* Sem “card”: tudo direto no fundo */}
+      <div className="space-y-5 border-t pt-5">
 
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div className="space-y-1">
@@ -201,7 +197,7 @@ export function ProductPurchasePanel({
             </div>
           </div>
         </div>
-      </Card>
+      </div>
     </section>
   );
 }

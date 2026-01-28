@@ -13,27 +13,11 @@ import product3 from "@/assets/product-3.jpg";
 const BRAND = "Aqua Store";
 
 const Index = () => {
-  const heroRef = React.useRef<HTMLDivElement | null>(null);
-
-  React.useEffect(() => {
-    const el = heroRef.current;
-    if (!el) return;
-    const onMove = (e: PointerEvent) => {
-      const rect = el.getBoundingClientRect();
-      const x = ((e.clientX - rect.left) / rect.width) * 100;
-      const y = ((e.clientY - rect.top) / rect.height) * 100;
-      el.style.setProperty("--mx", `${Math.max(0, Math.min(100, x))}%`);
-      el.style.setProperty("--my", `${Math.max(0, Math.min(100, y))}%`);
-    };
-    el.addEventListener("pointermove", onMove);
-    return () => el.removeEventListener("pointermove", onMove);
-  }, []);
-
   return (
-    <div className="min-h-screen bg-hero">
+    <div className="min-h-screen bg-background">
       <ProductHeader brandName={BRAND} />
 
-      <main ref={heroRef} className="container py-10">
+      <main className="container py-10">
         <div className="grid gap-8 lg:grid-cols-2 lg:items-start">
           <div className="lg:sticky lg:top-24">
             <ProductGallery

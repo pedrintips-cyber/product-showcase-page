@@ -8,17 +8,18 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 210 40% 98%;
-    --foreground: 222 47% 11%;
+    /* Preto & branco */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 7%;
 
     --surface: 0 0% 100%;
-    --surface-foreground: 222 47% 11%;
+    --surface-foreground: 0 0% 7%;
 
-    --brand: 172 78% 36%;
+    --brand: 0 0% 7%;
     --brand-foreground: 0 0% 100%;
-    --highlight: 183 86% 45%;
+    --highlight: 0 0% 20%;
 
-    --success: 150 62% 36%;
+    --success: 0 0% 7%;
     --success-foreground: 0 0% 100%;
 
     --card: 0 0% 100%;
@@ -44,17 +45,19 @@ All colors MUST be HSL.
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: var(--brand);
+    --ring: 0 0% 7%;
 
     --radius: 0.9rem;
 
-    --gradient-hero: radial-gradient(1200px circle at var(--mx, 50%) var(--my, 30%),
-        hsl(var(--highlight) / 0.25),
-        transparent 55%),
+    --gradient-hero: radial-gradient(
+        1200px circle at var(--mx, 50%) var(--my, 30%),
+        hsl(0 0% 0% / 0.06),
+        transparent 55%
+      ),
       linear-gradient(180deg, hsl(var(--background)), hsl(var(--background)));
 
-    --shadow-elevated: 0 18px 55px -30px hsl(var(--brand) / 0.35);
-    --shadow-glow: 0 0 0 1px hsl(var(--border)), 0 18px 65px -35px hsl(var(--highlight) / 0.45);
+    --shadow-elevated: 0 12px 40px -30px hsl(0 0% 0% / 0.35);
+    --shadow-glow: 0 0 0 1px hsl(var(--border)), 0 10px 35px -25px hsl(0 0% 0% / 0.25);
 
     --sidebar-background: 0 0% 98%;
 
@@ -74,18 +77,19 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 222 47% 7%;
-    --foreground: 210 40% 98%;
+    /* Preto & branco (dark) */
+    --background: 0 0% 7%;
+    --foreground: 0 0% 98%;
 
-    --surface: 222 47% 9%;
-    --surface-foreground: 210 40% 98%;
+    --surface: 0 0% 10%;
+    --surface-foreground: 0 0% 98%;
 
-    --brand: 172 78% 42%;
-    --brand-foreground: 222 47% 7%;
-    --highlight: 183 86% 52%;
+    --brand: 0 0% 98%;
+    --brand-foreground: 0 0% 7%;
+    --highlight: 0 0% 70%;
 
-    --success: 150 62% 42%;
-    --success-foreground: 222 47% 7%;
+    --success: 0 0% 98%;
+    --success-foreground: 0 0% 7%;
 
     --card: 222.2 84% 4.9%;
     --card-foreground: 210 40% 98%;
@@ -110,7 +114,7 @@ All colors MUST be HSL.
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: var(--highlight);
+    --ring: 0 0% 98%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;

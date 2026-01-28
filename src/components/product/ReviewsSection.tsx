@@ -1,4 +1,3 @@
-import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { StarRating } from "@/components/product/StarRating";
 
@@ -34,9 +33,9 @@ export function ReviewsSection({ reviews, average, count }: ReviewsSectionProps)
         </a>
       </header>
 
-      <div className="grid gap-3 lg:grid-cols-3">
+      <div className="grid gap-6 border-t pt-6 lg:grid-cols-3">
         {reviews.slice(0, 3).map((r, idx) => (
-          <Card key={idx} className={cn("surface rounded-2xl border p-5 shadow-sm", "hover:shadow-elevated")}
+          <div key={idx} className={cn("space-y-4", idx === 0 ? "" : "")}
           >
             <div className="flex items-start justify-between gap-3">
               <div>
@@ -49,7 +48,7 @@ export function ReviewsSection({ reviews, average, count }: ReviewsSectionProps)
               <div className="text-sm font-semibold">{r.title}</div>
               <p className="text-sm leading-relaxed text-muted-foreground">{r.body}</p>
             </div>
-          </Card>
+          </div>
         ))}
       </div>
     </section>
