@@ -10,8 +10,10 @@ import { StoreFooter } from "@/components/product/StoreFooter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
+import { CheckoutOrderSummary } from "@/components/checkout/CheckoutOrderSummary";
+import { CheckoutShipping } from "@/components/checkout/CheckoutShipping";
+import { CheckoutUpsell } from "@/components/checkout/CheckoutUpsell";
 
 const BRAND = "Blumi";
 
@@ -52,6 +54,8 @@ export default function Checkout() {
   const location = useLocation();
   const state = (location.state || {}) as CheckoutState;
 
+  const [addTop, setAddTop] = React.useState(false);
+
   const product =
     state.product ??
     ({
@@ -70,19 +74,24 @@ export default function Checkout() {
       cep: "",
       number: "",
       address: "",
-      shipping: "sedex",
+      shipping: "carrier",
     },
     mode: "onBlur",
   });
 
-  const shippingPrice = form.watch("shipping") === "sedex" ? 19.9 : 14.9;
-  const subtotal = product.unitPrice * product.qty;
+  // Frete: transportadora grátis + sedex como upgrade (ajustável depois para cálculo por CEP).
+  const sedexPrice = 9.9;
+  const carrierPrice = 0;
+  const shippingPrice = form.watch("shipping") === "sedex" ? sedexPrice : carrierPrice;
+
+  const upsellTopPrice = 13;
+  const subtotal = product.unitPrice * product.qty + (addTop ? upsellTopPrice : 0);
   const total = subtotal + shippingPrice;
 
   const onSubmit = (values: FormValues) => {
     // Demo Pix: só confirma no frontend por enquanto.
     toast.success("Checkout pronto (demo)", {
-      description: `Cliente: ${values.name} • CEP: ${values.cep} • Frete: ${values.shipping === "sedex" ? "Sedex 24h" : "Transportadora 1–3d"} • Total: ${money(total)}`,
+      description: `Cliente: ${values.name} • CEP: ${values.cep} • Frete: ${values.shipping === "sedex" ? "Sedex 24h" : "Transportadora 1–3d"} • Top: ${addTop ? "Sim" : "Não"} • Total: ${money(total)}`,
     });
   };
 
@@ -90,11 +99,9 @@ export default function Checkout() {
     <div className="min-h-screen bg-background">
       <ProductHeader brandName={BRAND} />
 
-      <main className="mx-auto w-full max-w-screen-2xl px-4 py-10 sm:px-6 lg:px-10">
+      <main className="mx-auto w-full max-w-screen-2xl px-4 py-8 sm:px-6 lg:px-10 lg:py-10">
         <header className="flex flex-col gap-2">
-          <h1 className="text-balance text-2xl font-semibold tracking-tight sm:text-3xl">
-            Checkout
-          </h1>
+          <h1 className="text-balance text-2xl font-semibold tracking-tight sm:text-3xl">Checkout</h1>
           <div className="text-sm text-muted-foreground">
             <Link to="/" className="underline underline-offset-4">
               Voltar ao produto
@@ -102,112 +109,111 @@ export default function Checkout() {
           </div>
         </header>
 
-        <Separator className="my-8" />
+        <Separator className="my-6 sm:my-8" />
 
-        <section aria-label="Resumo do pedido" className="space-y-2">
-          <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <p className="font-medium tracking-tight">{product.name}</p>
-            <p className="text-sm text-muted-foreground">
-              {product.qty}× {money(product.unitPrice)}
-            </p>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            Cor: {product.color} • Tamanho: {product.size}
-          </p>
-        </section>
-
-        <Separator className="my-8" />
-
-        <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-10 lg:grid-cols-2">
-          <section aria-label="Dados para entrega" className="space-y-6">
-            <div className="grid gap-2">
-              <Label htmlFor="name">Nome</Label>
-              <Input id="name" autoComplete="name" {...form.register("name")} />
-              {form.formState.errors.name && (
-                <p className="text-sm font-medium text-destructive">{form.formState.errors.name.message}</p>
-              )}
-            </div>
-
-            <div className="grid gap-2">
-              <Label htmlFor="phone">Telefone / WhatsApp</Label>
-              <Input id="phone" inputMode="tel" autoComplete="tel" {...form.register("phone")} />
-              {form.formState.errors.phone && (
-                <p className="text-sm font-medium text-destructive">{form.formState.errors.phone.message}</p>
-              )}
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="grid gap-2">
-                <Label htmlFor="cep">CEP</Label>
-                <Input id="cep" inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" {...form.register("cep")} />
-                {form.formState.errors.cep && (
-                  <p className="text-sm font-medium text-destructive">{form.formState.errors.cep.message}</p>
-                )}
+        <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-start">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <section aria-label="Resumo do pedido" className="space-y-3">
+              <div className="space-y-1">
+                <h2 className="text-sm font-semibold tracking-tight">Seu pedido</h2>
+                <p className="text-sm text-muted-foreground">Confira os detalhes antes de gerar o Pix.</p>
               </div>
 
-              <div className="grid gap-2">
-                <Label htmlFor="number">Número</Label>
-                <Input id="number" inputMode="numeric" autoComplete="address-line2" {...form.register("number")} />
-                {form.formState.errors.number && (
-                  <p className="text-sm font-medium text-destructive">{form.formState.errors.number.message}</p>
-                )}
+              <div className="space-y-2">
+                <div className="flex flex-wrap items-baseline justify-between gap-2">
+                  <p className="font-medium tracking-tight">{product.name}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {product.qty}× {money(product.unitPrice)}
+                  </p>
+                </div>
+                <p className="text-sm text-muted-foreground">Cor: {product.color} • Tamanho: {product.size}</p>
               </div>
-            </div>
-
-            <div className="grid gap-2">
-              <Label htmlFor="address">Endereço</Label>
-              <Input id="address" autoComplete="street-address" {...form.register("address")} />
-              {form.formState.errors.address && (
-                <p className="text-sm font-medium text-destructive">{form.formState.errors.address.message}</p>
-              )}
-            </div>
-          </section>
-
-          <section aria-label="Frete e pagamento" className="space-y-6">
-            <div className="space-y-3">
-              <p className="font-medium tracking-tight">Frete</p>
-              <RadioGroup
-                value={form.watch("shipping")}
-                onValueChange={(v) => form.setValue("shipping", v as FormValues["shipping"], { shouldValidate: true })}
-                className="grid gap-3"
-              >
-                <label className="flex items-start gap-3">
-                  <RadioGroupItem value="sedex" className="mt-0.5" />
-                  <span className="grid gap-1">
-                    <span className="text-sm font-medium">Sedex (24h)</span>
-                    <span className="text-sm text-muted-foreground">{money(19.9)}</span>
-                  </span>
-                </label>
-
-                <label className="flex items-start gap-3">
-                  <RadioGroupItem value="carrier" className="mt-0.5" />
-                  <span className="grid gap-1">
-                    <span className="text-sm font-medium">Transportadora (1–3 dias úteis)</span>
-                    <span className="text-sm text-muted-foreground">{money(14.9)}</span>
-                  </span>
-                </label>
-              </RadioGroup>
-              {form.formState.errors.shipping && (
-                <p className="text-sm font-medium text-destructive">{form.formState.errors.shipping.message}</p>
-              )}
-            </div>
+            </section>
 
             <Separator />
 
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Subtotal</span>
-                <span>{money(subtotal)}</span>
+            <CheckoutUpsell checked={addTop} onCheckedChange={setAddTop} price={upsellTopPrice} />
+
+            <Separator />
+
+            <section aria-label="Dados para entrega" className="space-y-5">
+              <div className="space-y-1">
+                <h2 className="text-sm font-semibold tracking-tight">Entrega</h2>
+                <p className="text-sm text-muted-foreground">Preencha para calcular e confirmar o envio.</p>
               </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Frete</span>
-                <span>{money(shippingPrice)}</span>
+
+              <div className="grid gap-2">
+                <Label htmlFor="name">Nome</Label>
+                <Input id="name" autoComplete="name" {...form.register("name")} />
+                {form.formState.errors.name && (
+                  <p className="text-sm font-medium text-destructive">{form.formState.errors.name.message}</p>
+                )}
               </div>
-              <div className="flex items-center justify-between pt-2">
-                <span className="font-medium tracking-tight">Total</span>
-                <span className="font-medium tracking-tight">{money(total)}</span>
+
+              <div className="grid gap-2">
+                <Label htmlFor="phone">Telefone / WhatsApp</Label>
+                <Input id="phone" inputMode="tel" autoComplete="tel" {...form.register("phone")} />
+                {form.formState.errors.phone && (
+                  <p className="text-sm font-medium text-destructive">{form.formState.errors.phone.message}</p>
+                )}
               </div>
-            </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid gap-2">
+                  <Label htmlFor="cep">CEP</Label>
+                  <Input
+                    id="cep"
+                    inputMode="numeric"
+                    autoComplete="postal-code"
+                    placeholder="00000-000"
+                    {...form.register("cep")}
+                  />
+                  {form.formState.errors.cep && (
+                    <p className="text-sm font-medium text-destructive">{form.formState.errors.cep.message}</p>
+                  )}
+                </div>
+
+                <div className="grid gap-2">
+                  <Label htmlFor="number">Número</Label>
+                  <Input id="number" inputMode="numeric" autoComplete="address-line2" {...form.register("number")} />
+                  {form.formState.errors.number && (
+                    <p className="text-sm font-medium text-destructive">{form.formState.errors.number.message}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="address">Endereço</Label>
+                <Input id="address" autoComplete="street-address" {...form.register("address")} />
+                {form.formState.errors.address && (
+                  <p className="text-sm font-medium text-destructive">{form.formState.errors.address.message}</p>
+                )}
+              </div>
+            </section>
+          </form>
+
+          <aside className="space-y-6 lg:sticky lg:top-24">
+            <CheckoutShipping
+              value={form.watch("shipping")}
+              onChange={(v) => form.setValue("shipping", v as FormValues["shipping"], { shouldValidate: true })}
+              sedexPrice={sedexPrice}
+              carrierPrice={carrierPrice}
+            />
+            {form.formState.errors.shipping && (
+              <p className="text-sm font-medium text-destructive">{form.formState.errors.shipping.message}</p>
+            )}
+
+            <Separator />
+
+            <CheckoutOrderSummary
+              title="Total"
+              items={[
+                { label: "Subtotal", value: money(product.unitPrice * product.qty) },
+                { label: "Top", value: addTop ? money(upsellTopPrice) : "—" },
+                { label: "Frete", value: shippingPrice === 0 ? "Grátis" : money(shippingPrice) },
+                { label: "Total", value: money(total) },
+              ]}
+            />
 
             <div className="flex flex-col gap-2">
               <Button type="submit" variant="hero" size="xl">
@@ -218,8 +224,8 @@ export default function Checkout() {
                 Voltar
               </Button>
             </div>
-          </section>
-        </form>
+          </aside>
+        </div>
       </main>
 
       <StoreFooter brandName={BRAND} />
