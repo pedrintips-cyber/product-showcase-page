@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Check, CreditCard, ShieldCheck, Truck } from "lucide-react";
 import { StarRating } from "@/components/product/StarRating";
+import { ColorSelector, SizeSelector } from "@/components/product/ProductVariantSelectors";
 
 type Variant = {
   label: string;
@@ -98,53 +99,19 @@ export function ProductPurchasePanel({
           <div className="text-sm text-muted-foreground">ou 12x no cartão</div>
         </div>
 
-        <div className="mt-5 grid gap-4">
-          <div className="grid gap-2">
-            <div className="text-sm font-medium">Cor</div>
-            <div className="flex flex-wrap gap-2">
-              {colors.map((c) => (
-                <button
-                  key={c.value}
-                  type="button"
-                  onClick={() => setColor(c.value)}
-                  className={cn(
-                    "rounded-full border bg-background px-3 py-1.5 text-sm",
-                    "transition-transform hover:scale-[1.02] active:scale-[0.98]",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-                    color === c.value ? "border-primary" : "border-border",
-                  )}
-                >
-                  {c.label}
-                </button>
-              ))}
-            </div>
-          </div>
+        <div className="mt-5 grid gap-3">
+          <ColorSelector colors={colors} value={color} onChange={setColor} />
 
-          <div className="grid gap-2">
-            <div className="flex items-center justify-between gap-2">
-              <div className="text-sm font-medium">Tamanho</div>
-              <a href="#tabela" className="text-sm text-primary underline-offset-4 hover:underline">
-                tabela
+          <SizeSelector
+            sizes={sizes}
+            value={size}
+            onChange={setSize}
+            action={
+              <a href="#tabela" className="text-xs font-medium text-primary underline-offset-4 hover:underline">
+                ver tabela
               </a>
-            </div>
-            <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
-              {sizes.map((s) => (
-                <button
-                  key={s.value}
-                  type="button"
-                  onClick={() => setSize(s.value)}
-                  className={cn(
-                    "rounded-md border bg-background px-2 py-2 text-sm",
-                    "transition-transform hover:scale-[1.02] active:scale-[0.98]",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-                    size === s.value ? "border-primary" : "border-border",
-                  )}
-                >
-                  {s.label}
-                </button>
-              ))}
-            </div>
-          </div>
+            }
+          />
 
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="inline-flex items-center rounded-md border bg-background">
