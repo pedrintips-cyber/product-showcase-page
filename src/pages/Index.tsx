@@ -44,8 +44,8 @@ const Index = () => {
           <div className="space-y-10">
             <ProductPurchasePanel
               name="Legging Seamless Cintura Alta — Modeladora"
-              price={279.9}
-              compareAtPrice={349.9}
+              price={25.99}
+              compareAtPrice={34.99}
               rating={4.7}
               reviewsCount={214}
               colors={[
