@@ -67,7 +67,7 @@ export function ProductPurchasePanel({
           </Badge>
         </div>
 
-        <h1 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">{name}</h1>
+        <h1 className="text-balance text-2xl font-semibold tracking-tight sm:text-3xl lg:text-4xl">{name}</h1>
 
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2">
@@ -80,13 +80,13 @@ export function ProductPurchasePanel({
       </div>
 
       {/* Sem “card”: tudo direto no fundo */}
-      <div className="space-y-5 border-t pt-5">
+      <div className="space-y-5 border-t pt-4 sm:pt-5">
 
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div className="space-y-1">
             <div className="text-sm text-muted-foreground">Preço</div>
             <div className="flex items-baseline gap-3">
-              <div className="text-3xl font-semibold tracking-tight">{formatBRL(price)}</div>
+              <div className="text-2xl font-semibold tracking-tight sm:text-3xl">{formatBRL(price)}</div>
               {compareAtPrice ? (
                 <div className="flex items-center gap-2">
                   <div className="text-sm text-muted-foreground line-through">{formatBRL(compareAtPrice)}</div>
@@ -118,7 +118,7 @@ export function ProductPurchasePanel({
               <button
                 type="button"
                 className={cn(
-                  "h-10 w-10 rounded-md text-foreground",
+                  "h-9 w-9 rounded-md text-foreground sm:h-10 sm:w-10",
                   "transition-transform hover:scale-[1.02] active:scale-[0.98]",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                 )}
@@ -127,13 +127,13 @@ export function ProductPurchasePanel({
               >
                 −
               </button>
-              <div className="min-w-10 text-center text-sm tabular-nums" aria-label={`Quantidade ${qty}`}>
+              <div className="min-w-9 text-center text-sm tabular-nums sm:min-w-10" aria-label={`Quantidade ${qty}`}>
                 {qty}
               </div>
               <button
                 type="button"
                 className={cn(
-                  "h-10 w-10 rounded-md text-foreground",
+                  "h-9 w-9 rounded-md text-foreground sm:h-10 sm:w-10",
                   "transition-transform hover:scale-[1.02] active:scale-[0.98]",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                 )}
@@ -152,13 +152,13 @@ export function ProductPurchasePanel({
           <div className="grid gap-2 sm:grid-cols-2">
             <Button
               variant="hero"
-              size="xl"
+              size="lg"
               onClick={() => onBuy?.({ color, size, qty })}
-              className="w-full"
+              className="w-full sm:h-12 sm:px-10 sm:text-base"
             >
               Comprar agora
             </Button>
-            <Button variant="outline" size="xl" className="w-full">
+            <Button variant="outline" size="lg" className="w-full sm:h-12 sm:px-10 sm:text-base">
               Adicionar ao carrinho
             </Button>
           </div>

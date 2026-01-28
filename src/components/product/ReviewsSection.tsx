@@ -20,7 +20,7 @@ export function ReviewsSection({ reviews, average, count }: ReviewsSectionProps)
     <section aria-label="Avaliações" className="space-y-4">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div className="space-y-1">
-          <h2 className="text-2xl font-semibold tracking-tight">Avaliações</h2>
+          <h2 className="text-xl font-semibold tracking-tight sm:text-2xl">Avaliações</h2>
           <div className="flex items-center gap-2">
             <StarRating value={average} />
             <span className="text-sm text-muted-foreground">
@@ -33,7 +33,7 @@ export function ReviewsSection({ reviews, average, count }: ReviewsSectionProps)
         </a>
       </header>
 
-      <div className="grid gap-6 border-t pt-6 lg:grid-cols-3">
+      <div className="grid gap-5 border-t pt-5 sm:gap-6 sm:pt-6 lg:grid-cols-3">
         {reviews.slice(0, 3).map((r, idx) => (
           <div key={idx} className={cn("space-y-4", idx === 0 ? "" : "")}
           >
