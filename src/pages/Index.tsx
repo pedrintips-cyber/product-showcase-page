@@ -13,7 +13,7 @@ import leggingNude from "@/assets/legging-nude.jpg";
 import leggingGraphite from "@/assets/legging-graphite.jpg";
 import leggingBlue from "@/assets/legging-blue.jpg";
 
-const BRAND = "Aqua Store";
+const BRAND = "Blumi";
 
 const Index = () => {
   const [color, setColor] = React.useState("black");
