@@ -10,7 +10,7 @@ type ProductHeaderProps = {
 export function ProductHeader({ brandName }: ProductHeaderProps) {
   return (
     <header className="sticky top-0 z-40 border-b bg-background">
-      <div className="container flex h-16 items-center justify-between gap-3">
+      <div className="mx-auto flex h-16 w-full max-w-screen-2xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-10">
         <div className="flex items-center gap-3">
           <button
             type="button"

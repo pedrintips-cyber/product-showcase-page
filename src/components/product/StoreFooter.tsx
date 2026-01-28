@@ -9,7 +9,7 @@ type StoreFooterProps = {
 export function StoreFooter({ brandName }: StoreFooterProps) {
   return (
     <footer className="mt-14 border-t bg-background safe-bottom">
-      <div className="container py-12">
+      <div className="mx-auto w-full max-w-screen-2xl px-4 py-12 sm:px-6 lg:px-10">
         <div className="grid gap-6 lg:grid-cols-4">
           <div className="space-y-3">
             <div className="text-lg font-semibold tracking-tight">{brandName}</div>

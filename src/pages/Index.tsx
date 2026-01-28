@@ -33,7 +33,7 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <ProductHeader brandName={BRAND} />
 
-      <main className="container py-10">
+      <main className="mx-auto w-full max-w-screen-2xl px-4 py-10 sm:px-6 lg:px-10">
         <div className="grid gap-8 lg:grid-cols-2 lg:items-start">
           <div className="lg:sticky lg:top-24">
             <ProductGallery

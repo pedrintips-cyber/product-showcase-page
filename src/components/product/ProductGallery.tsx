@@ -38,7 +38,7 @@ export function ProductGallery({ images }: ProductGalleryProps) {
                   src={img.src}
                   alt={img.alt}
                   loading={idx === 0 ? "eager" : "lazy"}
-                  className="aspect-square w-full object-cover"
+                  className="aspect-[3/4] w-full object-contain bg-background"
                 />
               </CarouselItem>
             ))}
