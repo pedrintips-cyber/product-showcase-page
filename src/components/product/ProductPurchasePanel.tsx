@@ -51,6 +51,8 @@ export function ProductPurchasePanel({
   };
 
   const discountPct = compareAtPrice ? Math.round(((compareAtPrice - price) / compareAtPrice) * 100) : null;
+  const total = price * qty;
+  const totalCompareAt = compareAtPrice ? compareAtPrice * qty : null;
 
   return (
     <section aria-label="Detalhes do produto" className="space-y-4">
@@ -86,14 +88,21 @@ export function ProductPurchasePanel({
           <div className="space-y-1">
             <div className="text-sm text-muted-foreground">Preço</div>
             <div className="flex items-baseline gap-3">
-              <div className="text-2xl font-semibold tracking-tight sm:text-3xl">{formatBRL(price)}</div>
+              <div className="text-2xl font-semibold tracking-tight sm:text-3xl">{formatBRL(total)}</div>
               {compareAtPrice ? (
                 <div className="flex items-center gap-2">
-                  <div className="text-sm text-muted-foreground line-through">{formatBRL(compareAtPrice)}</div>
+                  <div className="text-sm text-muted-foreground line-through">
+                    {formatBRL(totalCompareAt ?? compareAtPrice)}
+                  </div>
                   {discountPct !== null && <Badge variant="soft">-{discountPct}%</Badge>}
                 </div>
               ) : null}
             </div>
+            {qty > 1 ? (
+              <div className="text-xs text-muted-foreground">
+                {qty}x {formatBRL(price)}
+              </div>
+            ) : null}
           </div>
 
           <div className="text-sm text-muted-foreground">ou 12x no cartão</div>

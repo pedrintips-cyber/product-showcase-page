@@ -14,7 +14,7 @@ export function OptionGroup({ title, hint, action, children, className }: Option
     <section
       aria-label={title}
       className={cn(
-        "rounded-lg border bg-accent/40 p-3 sm:p-4",
+        // Flat: sem painel/card. Mantém apenas hierarquia e respiro.
         "space-y-2 sm:space-y-3",
         className,
       )}
@@ -27,7 +27,7 @@ export function OptionGroup({ title, hint, action, children, className }: Option
         {action ? <div className="shrink-0">{action}</div> : null}
       </header>
 
-      <div>{children}</div>
+      <div className="border-b pb-3 sm:pb-4">{children}</div>
     </section>
   );
 }
