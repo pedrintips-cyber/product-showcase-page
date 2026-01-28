@@ -18,6 +18,8 @@ type ProductPurchasePanelProps = {
   reviewsCount: number;
   colors: Variant[];
   sizes: Variant[];
+  selectedColor?: string;
+  onColorChange?: (color: string) => void;
   onBuy?: (payload: { color: string; size: string; qty: number }) => void;
 };
 
@@ -33,11 +35,19 @@ export function ProductPurchasePanel({
   reviewsCount,
   colors,
   sizes,
+  selectedColor,
+  onColorChange,
   onBuy,
 }: ProductPurchasePanelProps) {
-  const [color, setColor] = React.useState(colors[0]?.value ?? "");
+  const [uncontrolledColor, setUncontrolledColor] = React.useState(colors[0]?.value ?? "");
   const [size, setSize] = React.useState(sizes[0]?.value ?? "");
   const [qty, setQty] = React.useState(1);
+
+  const color = selectedColor ?? uncontrolledColor;
+  const setColor = (next: string) => {
+    setUncontrolledColor(next);
+    onColorChange?.(next);
+  };
 
   const discountPct = compareAtPrice ? Math.round(((compareAtPrice - price) / compareAtPrice) * 100) : null;
 

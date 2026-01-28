@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, type CarouselApi } from "@/components/ui/carousel";
 import { cn } from "@/lib/utils";
 
 type ProductImage = {
@@ -13,6 +13,12 @@ type ProductGalleryProps = {
 
 export function ProductGallery({ images }: ProductGalleryProps) {
   const [selected, setSelected] = React.useState(0);
+  const apiRef = React.useRef<CarouselApi | null>(null);
+
+  React.useEffect(() => {
+    setSelected(0);
+    apiRef.current?.scrollTo(0);
+  }, [images]);
 
   return (
     <section aria-label="Galeria de fotos" className="space-y-3">
@@ -21,6 +27,7 @@ export function ProductGallery({ images }: ProductGalleryProps) {
           opts={{ align: "start", loop: true }}
           setApi={(api) => {
             if (!api) return;
+            apiRef.current = api;
             api.on("select", () => setSelected(api.selectedScrollSnap()));
           }}
         >
@@ -40,14 +47,14 @@ export function ProductGallery({ images }: ProductGalleryProps) {
           <CarouselPrevious
             className={cn(
               "left-3 top-1/2 -translate-y-1/2",
-              "bg-background/80 text-foreground backdrop-blur",
+              "bg-background text-foreground",
             )}
             aria-label="Foto anterior"
           />
           <CarouselNext
             className={cn(
               "right-3 top-1/2 -translate-y-1/2",
-              "bg-background/80 text-foreground backdrop-blur",
+              "bg-background text-foreground",
             )}
             aria-label="Próxima foto"
           />
@@ -59,7 +66,10 @@ export function ProductGallery({ images }: ProductGalleryProps) {
           <button
             key={idx}
             type="button"
-            onClick={() => setSelected(idx)}
+            onClick={() => {
+              setSelected(idx);
+              apiRef.current?.scrollTo(idx);
+            }}
             className={cn(
               "group relative overflow-hidden rounded-xl",
               "transition-transform hover:scale-[1.01] active:scale-[0.99]",
