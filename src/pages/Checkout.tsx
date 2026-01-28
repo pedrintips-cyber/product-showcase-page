@@ -15,6 +15,8 @@ import { CheckoutOrderSummary } from "@/components/checkout/CheckoutOrderSummary
 import { CheckoutShipping } from "@/components/checkout/CheckoutShipping";
 import { CheckoutUpsell } from "@/components/checkout/CheckoutUpsell";
 
+import upsellTopImage from "@/assets/upsell-top.jpg";
+
 const BRAND = "Blumi";
 
 type CheckoutState = {
@@ -111,7 +113,7 @@ export default function Checkout() {
 
         <Separator className="my-6 sm:my-8" />
 
-        <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-start">
+        <div className="grid gap-8 lg:gap-12 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-start">
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <section aria-label="Resumo do pedido" className="space-y-3">
               <div className="space-y-1">
@@ -129,12 +131,6 @@ export default function Checkout() {
                 <p className="text-sm text-muted-foreground">Cor: {product.color} • Tamanho: {product.size}</p>
               </div>
             </section>
-
-            <Separator />
-
-            <CheckoutUpsell checked={addTop} onCheckedChange={setAddTop} price={upsellTopPrice} />
-
-            <Separator />
 
             <section aria-label="Dados para entrega" className="space-y-5">
               <div className="space-y-1">
@@ -190,6 +186,16 @@ export default function Checkout() {
                 )}
               </div>
             </section>
+
+            <Separator />
+
+            <CheckoutUpsell
+              checked={addTop}
+              onCheckedChange={setAddTop}
+              price={upsellTopPrice}
+              imageSrc={upsellTopImage}
+              imageAlt="Top Seamless preto"
+            />
           </form>
 
           <aside className="space-y-6 lg:sticky lg:top-24">
