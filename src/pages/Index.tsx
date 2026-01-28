@@ -1,5 +1,6 @@
 import * as React from "react";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 import { ProductGallery } from "@/components/product/ProductGallery";
 import { ProductHeader } from "@/components/product/ProductHeader";
 import { ProductInfoSections } from "@/components/product/ProductInfoSections";
@@ -17,6 +18,7 @@ const BRAND = "Blumi";
 
 const Index = () => {
   const [color, setColor] = React.useState("black");
+  const navigate = useNavigate();
 
   const imagesByColor: Record<string, { src: string; alt: string }[]> = {
     black: [
@@ -63,8 +65,20 @@ const Index = () => {
                 { label: "GG", value: "GG" },
               ]}
               onBuy={({ color, size, qty }) => {
-                toast.success("Pedido pronto! (demo)", {
-                  description: `Cor: ${color} • Tamanho: ${size} • Qtd: ${qty}`,
+                toast.success("Pedido pronto!", {
+                  description: "Abrindo checkout…",
+                });
+
+                navigate("/checkout", {
+                  state: {
+                    product: {
+                      name: "Legging Seamless Cintura Alta — Modeladora",
+                      unitPrice: 25.99,
+                      color,
+                      size,
+                      qty,
+                    },
+                  },
                 });
               }}
             />
