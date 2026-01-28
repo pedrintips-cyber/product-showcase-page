@@ -16,7 +16,7 @@ export function ProductGallery({ images }: ProductGalleryProps) {
 
   return (
     <section aria-label="Galeria de fotos" className="space-y-3">
-      <div className="relative overflow-hidden rounded-2xl border bg-surface shadow-elevated">
+      <div className="relative overflow-hidden rounded-2xl">
         <Carousel
           opts={{ align: "start", loop: true }}
           setApi={(api) => {
@@ -40,20 +40,18 @@ export function ProductGallery({ images }: ProductGalleryProps) {
           <CarouselPrevious
             className={cn(
               "left-3 top-1/2 -translate-y-1/2",
-              "bg-surface/80 text-surface-foreground backdrop-blur",
+              "bg-background/80 text-foreground backdrop-blur",
             )}
             aria-label="Foto anterior"
           />
           <CarouselNext
             className={cn(
               "right-3 top-1/2 -translate-y-1/2",
-              "bg-surface/80 text-surface-foreground backdrop-blur",
+              "bg-background/80 text-foreground backdrop-blur",
             )}
             aria-label="Próxima foto"
           />
         </Carousel>
-
-        <div className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-border/40" aria-hidden="true" />
       </div>
 
       <div className="grid grid-cols-3 gap-3">
@@ -63,10 +61,10 @@ export function ProductGallery({ images }: ProductGalleryProps) {
             type="button"
             onClick={() => setSelected(idx)}
             className={cn(
-              "group relative overflow-hidden rounded-xl border bg-surface",
+              "group relative overflow-hidden rounded-xl",
               "transition-transform hover:scale-[1.01] active:scale-[0.99]",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-              selected === idx ? "ring-2 ring-primary" : "ring-0",
+              selected === idx ? "ring-2 ring-primary" : "ring-1 ring-border/40",
             )}
             aria-label={`Selecionar foto ${idx + 1}`}
           >

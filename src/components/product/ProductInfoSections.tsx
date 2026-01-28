@@ -1,6 +1,5 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
 import { Ruler, Sparkles } from "lucide-react";
 
 type ProductInfoSectionsProps = {
@@ -13,7 +12,7 @@ export function ProductInfoSections({ description, highlights, specs }: ProductI
   return (
     <section aria-label="Descrição" className="space-y-6">
       <div className="grid gap-4 lg:grid-cols-3">
-        <Card className="surface rounded-2xl border p-5 shadow-sm lg:col-span-2">
+        <div className="lg:col-span-2">
           <div className="flex items-center gap-2">
             <Badge variant="soft" className="gap-1">
               <Sparkles className="h-3.5 w-3.5" /> Destaques
@@ -28,9 +27,9 @@ export function ProductInfoSections({ description, highlights, specs }: ProductI
               </li>
             ))}
           </ul>
-        </Card>
+        </div>
 
-        <Card id="tabela" className="surface rounded-2xl border p-5 shadow-sm">
+        <div id="tabela" className="lg:pl-6 lg:border-l">
           <div className="flex items-center gap-2">
             <Badge variant="soft" className="gap-1">
               <Ruler className="h-3.5 w-3.5" /> Medidas
@@ -44,23 +43,23 @@ export function ProductInfoSections({ description, highlights, specs }: ProductI
               </div>
             ))}
           </div>
-        </Card>
+        </div>
       </div>
 
-      <Accordion type="single" collapsible className="rounded-2xl border bg-surface">
-        <AccordionItem value="shipping" className="px-4">
+      <Accordion type="single" collapsible className="border-t">
+        <AccordionItem value="shipping" className="border-b px-0">
           <AccordionTrigger className="text-sm">Envio e prazos</AccordionTrigger>
           <AccordionContent className="text-sm text-muted-foreground">
             Postagem em até 24h úteis. Você recebe o código de rastreio por e-mail e pode acompanhar tudo em tempo real.
           </AccordionContent>
         </AccordionItem>
-        <AccordionItem value="returns" className="px-4">
+        <AccordionItem value="returns" className="border-b px-0">
           <AccordionTrigger className="text-sm">Troca e devolução</AccordionTrigger>
           <AccordionContent className="text-sm text-muted-foreground">
             Troca grátis em até 7 dias após o recebimento. Sem dor de cabeça.
           </AccordionContent>
         </AccordionItem>
-        <AccordionItem value="warranty" className="px-4">
+        <AccordionItem value="warranty" className="border-b px-0">
           <AccordionTrigger className="text-sm">Garantia</AccordionTrigger>
           <AccordionContent className="text-sm text-muted-foreground">
             Garantia contra defeitos de fabricação. Se algo não estiver perfeito, resolvemos rápido.
