@@ -5,7 +5,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 import { toast } from "sonner";
-import { ProductHeader } from "@/components/product/ProductHeader";
 import { StoreFooter } from "@/components/product/StoreFooter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -141,10 +140,8 @@ export default function Checkout() {
 
   return (
     <div className="min-h-screen bg-background">
-      <ProductHeader brandName={BRAND} />
-
-      <main className="mx-auto w-full max-w-screen-2xl px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
-        <header className="flex flex-col gap-2">
+      <main className="mx-auto w-full max-w-screen-2xl px-4 py-4 sm:px-6 sm:py-6 lg:px-10 lg:py-8">
+        <header className="flex flex-col gap-1">
           <h1 className="text-balance text-2xl font-semibold tracking-tight sm:text-3xl">Checkout</h1>
           <div className="text-sm text-muted-foreground">
             <Link to="/" className="underline underline-offset-4">
@@ -153,18 +150,17 @@ export default function Checkout() {
           </div>
         </header>
 
-        <Separator className="my-4 sm:my-6" />
+        <Separator className="my-3 sm:my-4" />
 
         <CheckoutStepHeader step={step} />
 
-        <Separator className="my-4 sm:my-6" />
+        <Separator className="my-3 sm:my-4" />
 
-        <div className="grid gap-6 lg:gap-12 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-start">
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pb-20 sm:pb-0">
-            <section aria-label="Resumo do pedido" className="space-y-3">
+        <div className="grid gap-4 lg:gap-12 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-start">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pb-20 sm:pb-0">
+            <section aria-label="Resumo do pedido" className="space-y-2">
               <div className="space-y-1">
                 <h2 className="text-sm font-semibold tracking-tight">Seu pedido</h2>
-                <p className="text-sm text-muted-foreground">Confira os detalhes antes de gerar o Pix.</p>
               </div>
 
               <div className="space-y-2">
@@ -179,10 +175,9 @@ export default function Checkout() {
             </section>
 
             {step === 1 && (
-              <section aria-label="Dados para entrega" className="space-y-5">
+              <section aria-label="Dados para entrega" className="space-y-4">
                 <div className="space-y-1">
                   <h2 className="text-sm font-semibold tracking-tight">Entrega</h2>
-                  <p className="text-sm text-muted-foreground">Preencha por partes — depois você escolhe o frete.</p>
                 </div>
 
                 <div className="grid gap-2">
@@ -261,7 +256,7 @@ export default function Checkout() {
                   )}
                 </div>
 
-                <Separator />
+                <Separator className="!my-3" />
 
                 <CheckoutUpsell
                   checked={addTop}
@@ -274,10 +269,9 @@ export default function Checkout() {
             )}
 
             {step === 2 && (
-              <section aria-label="Frete" className="space-y-5">
+              <section aria-label="Frete" className="space-y-4">
                 <div className="space-y-1">
                   <h2 className="text-sm font-semibold tracking-tight">Frete</h2>
-                  <p className="text-sm text-muted-foreground">Escolha a opção para calcular o total.</p>
                 </div>
 
                 <CheckoutShipping
@@ -293,10 +287,9 @@ export default function Checkout() {
             )}
 
             {step === 3 && (
-              <section aria-label="Revisão" className="space-y-5">
+              <section aria-label="Revisão" className="space-y-4">
                 <div className="space-y-1">
                   <h2 className="text-sm font-semibold tracking-tight">Revisão</h2>
-                  <p className="text-sm text-muted-foreground">Confirme tudo antes de gerar o Pix.</p>
                 </div>
 
                 <div className="space-y-2 text-sm">

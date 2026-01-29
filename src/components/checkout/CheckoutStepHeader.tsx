@@ -20,10 +20,9 @@ export function CheckoutStepHeader({ step }: Props) {
 
   return (
     <section aria-label="Progresso do checkout" className="space-y-3">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="space-y-1">
           <p className="text-sm font-semibold tracking-tight">Etapa {step} de 3</p>
-          <p className="text-sm text-muted-foreground">Finalize em poucos passos.</p>
         </div>
 
         <ol className="flex items-center gap-2 text-xs text-muted-foreground">
