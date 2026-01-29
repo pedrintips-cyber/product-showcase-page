@@ -248,131 +248,61 @@ Deno.serve(async (req) => {
       pix_identifier: typeof identifier === "string" ? identifier : null,
     };
 
-    const { error: leadErr } = await admin.from("checkout_leads").insert(leadInsert);
+    const { data: insertedLead, error: leadErr } = await admin
+      .from("checkout_leads")
+      .insert(leadInsert)
+      .select("id")
+      .maybeSingle();
     if (leadErr) {
       // Don't block payment flow if remarketing capture fails.
       console.error("Failed to insert checkout lead", { code: leadErr.code });
     }
+    const insertedLeadId = (insertedLead as any)?.id as string | undefined;
 
-    async function sendDiscordBatchIfNeeded() {
+    async function sendDiscordRealtime() {
       try {
-        const { count, error: cntErr } = await admin
-          .from("checkout_leads")
-          .select("id", { count: "exact", head: true })
-          .eq("sent_to_discord", false);
-        if (cntErr) throw cntErr;
-        if (!count || count < 100) return;
-
-        const { data: leads, error: leadsErr } = await admin
-          .from("checkout_leads")
-          .select(
-            "id,created_at,name,email,phone,cpf,cep,address,number,product_name,product_color,product_size,qty,add_top,shipping,total,pix_identifier",
-          )
-          .eq("sent_to_discord", false)
-          .order("created_at", { ascending: true })
-          .limit(100);
-        if (leadsErr) throw leadsErr;
-        if (!leads || leads.length < 100) return;
-
-        const batchId = crypto.randomUUID();
-        const firstAt = leads[0]?.created_at ? new Date(leads[0].created_at).toISOString() : null;
-        const lastAt = leads[leads.length - 1]?.created_at
-          ? new Date(leads[leads.length - 1].created_at).toISOString()
-          : null;
-
-        const { error: batchErr } = await admin.from("discord_lead_batches").insert({
-          id: batchId,
-          lead_count: leads.length,
-          first_lead_at: firstAt,
-          last_lead_at: lastAt,
-        });
-        if (batchErr) throw batchErr;
-
-        const header = [
-          "created_at",
-          "id",
-          "name",
-          "email",
-          "phone",
-          "cpf",
-          "cep",
-          "address",
-          "number",
-          "product_name",
-          "product_color",
-          "product_size",
-          "qty",
-          "add_top",
-          "shipping",
-          "total",
-          "pix_identifier",
+        if (!insertedLeadId) return;
+        // Envio em tempo real (sem lote). Importante: isso envia PII ao Discord por decisão do projeto.
+        const contentLines = [
+          "✅ Novo checkout (Pix gerado)",
+          `ID: ${leadInsert.pix_identifier ?? "(sem identifier)"}`,
+          `Nome: ${name}`,
+          `Email: ${email}`,
+          `Telefone: ${phone}`,
+          `CPF: ${cpf}`,
+          `Endereço: ${address}, Nº ${number}, CEP ${cep}`,
+          `Pedido: ${productName} ${productColor ? `| Cor: ${productColor}` : ""} ${productSize ? `| Tam: ${productSize}` : ""} | Qtd: ${qty} ${addTop ? "| +Top" : ""}`,
+          `Frete: ${shipping}`,
+          `Total: R$ ${Number(total).toFixed(2)}`,
         ];
-
-        const lines = [header.join(",")];
-        for (const l of leads as any[]) {
-          lines.push(
-            [
-              l.created_at,
-              l.id,
-              l.name,
-              l.email,
-              l.phone,
-              l.cpf,
-              l.cep,
-              l.address,
-              l.number,
-              l.product_name,
-              l.product_color ?? "",
-              l.product_size ?? "",
-              l.qty,
-              l.add_top,
-              l.shipping,
-              l.total,
-              l.pix_identifier ?? "",
-            ].map(toCsvValue).join(","),
-          );
-        }
-
-        const csv = lines.join("\n");
-        const file = new Blob([csv], { type: "text/csv;charset=utf-8" });
-        const form = new FormData();
-        form.append(
-          "payload_json",
-          JSON.stringify({
-            content: `Lote de 100 checkouts (batch ${batchId}). Arquivo CSV em anexo.`,
-          }),
-        );
-        form.append("files[0]", file, `leads-${batchId}.csv`);
 
         const discordResp = await fetch(DISCORD_WEBHOOK_URL!, {
           method: "POST",
-          body: form,
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ content: contentLines.join("\n") }),
         });
-        const discordData = await safeJson(discordResp);
+
+        // Always consume body
+        await discordResp.text();
+
         if (!discordResp.ok) {
-          console.error("Discord webhook failed", { status: discordResp.status });
+          console.error("Discord realtime webhook failed", { status: discordResp.status });
           return;
         }
 
-        const messageId = (discordData as any)?.id;
-        await admin
-          .from("discord_lead_batches")
-          .update({ discord_message_id: typeof messageId === "string" ? messageId : null })
-          .eq("id", batchId);
-
-        const ids = (leads as any[]).map((l) => l.id);
+        // Marca como enviado para não reenviar (mantemos discord_batch_id como null)
         await admin
           .from("checkout_leads")
-          .update({ sent_to_discord: true, discord_batch_id: batchId })
-          .in("id", ids);
+          .update({ sent_to_discord: true, discord_batch_id: null })
+          .eq("id", insertedLeadId);
       } catch (e) {
-        console.error("Discord batch job failed", e);
+        console.error("Discord realtime job failed", e);
       }
     }
 
-    // Run the Discord batching in background so it never blocks Pix creation.
+    // Rodar em background para nunca bloquear o Pix.
     // @ts-ignore - EdgeRuntime is available in edge runtime.
-    EdgeRuntime?.waitUntil?.(sendDiscordBatchIfNeeded());
+    EdgeRuntime?.waitUntil?.(sendDiscordRealtime());
 
     // Return only what the frontend needs.
     return json({

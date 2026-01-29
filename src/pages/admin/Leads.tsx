@@ -32,6 +32,7 @@ type LeadRow = {
   add_top: boolean;
   shipping: string;
   total: number;
+  pix_identifier: string | null;
   sent_to_discord: boolean;
   discord_batch_id: string | null;
 };
@@ -63,8 +64,10 @@ export default function AdminLeadsPage() {
       const { data, error } = await supabase
         .from("checkout_leads")
         .select(
-          "id,created_at,name,email,phone,cpf,cep,address,number,product_name,product_color,product_size,qty,add_top,shipping,total,sent_to_discord,discord_batch_id",
+          "id,created_at,name,email,phone,cpf,cep,address,number,product_name,product_color,product_size,qty,add_top,shipping,total,pix_identifier,sent_to_discord,discord_batch_id",
         )
+        // “Somente pago” no critério atual: só exibir leads com Pix gerado.
+        .not("pix_identifier", "is", null)
         .order("created_at", { ascending: false })
         .limit(limit);
 
@@ -97,6 +100,7 @@ export default function AdminLeadsPage() {
       "add_top",
       "shipping",
       "total",
+      "pix_identifier",
       "sent_to_discord",
       "discord_batch_id",
     ];
@@ -121,6 +125,7 @@ export default function AdminLeadsPage() {
           r.add_top,
           r.shipping,
           r.total,
+          r.pix_identifier ?? "",
           r.sent_to_discord,
           r.discord_batch_id ?? "",
         ].map(toCsvValue).join(","),
@@ -169,27 +174,28 @@ export default function AdminLeadsPage() {
                   <TableHead>Endereço</TableHead>
                   <TableHead>Pedido</TableHead>
                   <TableHead>Total</TableHead>
+                  <TableHead>Pix</TableHead>
                   <TableHead>Discord</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {leadsQuery.isLoading && (
                   <TableRow>
-                    <TableCell colSpan={9} className="py-10 text-center text-sm text-muted-foreground">
+                    <TableCell colSpan={10} className="py-10 text-center text-sm text-muted-foreground">
                       Carregando…
                     </TableCell>
                   </TableRow>
                 )}
                 {leadsQuery.isError && (
                   <TableRow>
-                    <TableCell colSpan={9} className="py-10 text-center text-sm text-destructive">
+                    <TableCell colSpan={10} className="py-10 text-center text-sm text-destructive">
                       Não foi possível carregar (verifique se você é admin).
                     </TableCell>
                   </TableRow>
                 )}
                 {!leadsQuery.isLoading && !leadsQuery.isError && (leadsQuery.data?.length ?? 0) === 0 && (
                   <TableRow>
-                    <TableCell colSpan={9} className="py-10 text-center text-sm text-muted-foreground">
+                    <TableCell colSpan={10} className="py-10 text-center text-sm text-muted-foreground">
                       Nenhum registro ainda.
                     </TableCell>
                   </TableRow>
@@ -217,6 +223,9 @@ export default function AdminLeadsPage() {
                       </div>
                     </TableCell>
                     <TableCell className="whitespace-nowrap">R$ {Number(r.total).toFixed(2)}</TableCell>
+                    <TableCell className="whitespace-nowrap">
+                      {r.pix_identifier ? r.pix_identifier.slice(0, 8) + "…" : "—"}
+                    </TableCell>
                     <TableCell className="whitespace-nowrap">
                       {r.sent_to_discord ? "Enviado" : "Pendente"}
                     </TableCell>
