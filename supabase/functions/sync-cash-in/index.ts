@@ -34,7 +34,9 @@ function json(body: unknown, status = 200) {
 }
 
 function errorJson(message: string, status = 400, details?: unknown) {
-  return json({ success: false, error: message, details }, status);
+  // Never echo upstream/provider details to the browser.
+  // Detailed diagnostics must stay in function logs.
+  return json({ success: false, error: message }, status);
 }
 
 function normalizeBaseUrl(url: string) {
@@ -111,7 +113,7 @@ Deno.serve(async (req) => {
     const authData = await safeJson(authResp);
     if (!authResp.ok) {
       console.error("Sync auth-token failed", { status: authResp.status, data: authData });
-      return errorJson(`Sync auth-token failed [${authResp.status}]`, authResp.status, authData);
+      return errorJson(`Sync auth-token failed [${authResp.status}]`, authResp.status);
     }
 
     const accessToken = (authData as any)?.access_token;
@@ -133,14 +135,8 @@ Deno.serve(async (req) => {
       },
     };
 
-    console.log("Sync cash-in request", {
-      amount,
-      has_description: !!description,
-      client_name_len: name.length,
-      client_email_domain: email.split("@")[1] ?? "",
-      client_cpf_len: cpf.length,
-      client_phone_len: phone.length,
-    });
+    // Avoid logging any PII (name/email/cpf/phone) in logs.
+    console.log("Sync cash-in request", { amount, has_description: !!description });
 
     const cashResp = await fetch(`${SYNC_BASE_URL}/api/partner/v1/cash-in`, {
       method: "POST",
@@ -155,7 +151,7 @@ Deno.serve(async (req) => {
     const cashData = await safeJson(cashResp);
     if (!cashResp.ok) {
       console.error("Sync cash-in failed", { status: cashResp.status, data: cashData });
-      return errorJson(`Sync cash-in failed [${cashResp.status}]`, cashResp.status, cashData);
+      return errorJson(`Sync cash-in failed [${cashResp.status}]`, cashResp.status);
     }
 
     // Frontend expects a Pix code string (copy-and-paste). Sync returns pix_code.
@@ -164,17 +160,16 @@ Deno.serve(async (req) => {
       return errorJson("Sync cash-in returned invalid pix_code", 500, cashData);
     }
 
+    // Return only what the frontend needs.
     return json({
       success: true,
-      data: cashData,
-      pix: {
-        copy_and_paste: pixCode ?? null,
-      },
+      pix: { copy_and_paste: pixCode ?? null },
       identifier: (cashData as any)?.identifier,
     });
   } catch (err) {
     console.error("Unexpected error calling Sync", err);
     const msg = err instanceof Error ? err.message : "Unknown error";
-    return errorJson("Unexpected error calling Sync", 500, msg);
+    // Do not leak internal error messages to the client.
+    return errorJson("Unexpected error calling Sync", 500);
   }
 });
