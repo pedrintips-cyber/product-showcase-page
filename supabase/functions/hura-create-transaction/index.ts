@@ -142,29 +142,39 @@ Deno.serve(async (req) => {
 
   const rootIp = req.headers.get("x-forwarded-for") || undefined;
 
-  const requestPayload = {
-    payment_method: "pix",
-    amount: payload.amount,
-    postback_url,
-    customer,
-    Customer: {
-      ...Customer,
-      Phone: digitsOnly(Customer.Phone) ?? Customer.Phone,
-    },
-    items: payload.items,
-    Items: payload.items,
-    shipping: normalizedShipping,
-    Shipping: normalizedShipping,
-    metadata,
-    Metadata: metadata,
-    MetadataJson: metadataJson,
-    ip: rootIp,
-    Ip: rootIp,
+  const CustomerRoot = {
+    Name: customer.name,
+    Phone: digitsOnly(customer.phone) ?? customer.phone,
+    Document: (Customer as any).Document,
   };
 
+  // Keep the wrapper because Hura previously required it, but send required fields
+  // at the ROOT level too (current validation errors are for root-level fields).
   const body = {
-    request: requestPayload,
-    Request: requestPayload,
+    request: {
+      payment_method: "pix",
+      amount: payload.amount,
+      postback_url,
+    },
+
+    // Root-level required fields (per validation errors)
+    Customer: CustomerRoot,
+    Metadata: metadata,
+
+    // Also send common additional fields (in PascalCase) to help binding.
+    Items: payload.items,
+    Shipping: normalizedShipping,
+    Ip: rootIp,
+
+    // Keep camelCase duplicates for safety.
+    customer,
+    metadata,
+    items: payload.items,
+    shipping: normalizedShipping,
+    ip: rootIp,
+
+    // debug helpers (harmless)
+    MetadataJson: metadataJson,
   };
 
   console.log("Hura outbound payload shape", {
