@@ -28,9 +28,11 @@ const App = () => (
             <Route
               path="/admin/leads"
               element={
-                <ProtectedRoute requireAdmin>
-                  <AdminLeadsPage />
-                </ProtectedRoute>
+                <div>
+                  <ProtectedRoute requireAdmin>
+                    <AdminLeadsPage />
+                  </ProtectedRoute>
+                </div>
               }
             />
 

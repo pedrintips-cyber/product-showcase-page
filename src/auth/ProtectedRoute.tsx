@@ -2,10 +2,13 @@ import * as React from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/auth/AuthProvider";
 
-export const ProtectedRoute = React.forwardRef<
-  HTMLDivElement,
-  { children: React.ReactNode; requireAdmin?: boolean }
->(function ProtectedRoute({ children, requireAdmin }, ref) {
+export function ProtectedRoute({
+  children,
+  requireAdmin,
+}: {
+  children: React.ReactNode;
+  requireAdmin?: boolean;
+}) {
   const { user, isAdmin, isLoading } = useAuth();
   const location = useLocation();
 
@@ -17,7 +20,7 @@ export const ProtectedRoute = React.forwardRef<
 
   if (requireAdmin && !isAdmin) {
     return (
-      <main ref={ref} className="mx-auto w-full max-w-3xl px-4 py-10">
+      <main className="mx-auto w-full max-w-3xl px-4 py-10">
         <h1 className="text-balance text-2xl font-semibold tracking-tight">
           Acesso restrito
         </h1>
@@ -28,9 +31,5 @@ export const ProtectedRoute = React.forwardRef<
     );
   }
 
-  return (
-    <div ref={ref}>
-      {children}
-    </div>
-  );
-});
+  return <>{children}</>;
+}
