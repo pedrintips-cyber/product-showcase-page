@@ -14,6 +14,8 @@ import { Separator } from "@/components/ui/separator";
 import { CheckoutOrderSummary } from "@/components/checkout/CheckoutOrderSummary";
 import { CheckoutShipping } from "@/components/checkout/CheckoutShipping";
 import { CheckoutUpsell } from "@/components/checkout/CheckoutUpsell";
+import { CheckoutStepHeader } from "@/components/checkout/CheckoutStepHeader";
+import { CheckoutStepActions } from "@/components/checkout/CheckoutStepActions";
 
 import upsellTopImage from "@/assets/upsell-top.jpg";
 
@@ -51,12 +53,15 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>;
 
+type Step = 1 | 2 | 3;
+
 export default function Checkout() {
   const navigate = useNavigate();
   const location = useLocation();
   const state = (location.state || {}) as CheckoutState;
 
   const [addTop, setAddTop] = React.useState(false);
+  const [step, setStep] = React.useState<Step>(1);
 
   const product =
     state.product ??
@@ -97,6 +102,31 @@ export default function Checkout() {
     });
   };
 
+  const inputClass = "h-12 px-4 text-base";
+
+  const goNext = async () => {
+    if (step === 1) {
+      const ok = await form.trigger(["name", "phone", "cep", "number", "address"], { shouldFocus: true });
+      if (!ok) return;
+      setStep(2);
+      return;
+    }
+
+    if (step === 2) {
+      const ok = await form.trigger(["shipping"], { shouldFocus: true });
+      if (!ok) return;
+      setStep(3);
+      return;
+    }
+
+    // step 3: submit handled by form
+  };
+
+  const goBack = () => {
+    if (step === 1) return;
+    setStep((prev) => (prev === 3 ? 2 : 1));
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <ProductHeader brandName={BRAND} />
@@ -110,6 +140,10 @@ export default function Checkout() {
             </Link>
           </div>
         </header>
+
+        <Separator className="my-6 sm:my-8" />
+
+        <CheckoutStepHeader step={step} />
 
         <Separator className="my-6 sm:my-8" />
 
@@ -132,108 +166,164 @@ export default function Checkout() {
               </div>
             </section>
 
-            <section aria-label="Dados para entrega" className="space-y-5">
-              <div className="space-y-1">
-                <h2 className="text-sm font-semibold tracking-tight">Entrega</h2>
-                <p className="text-sm text-muted-foreground">Preencha para calcular e confirmar o envio.</p>
-              </div>
+            {step === 1 && (
+              <section aria-label="Dados para entrega" className="space-y-5">
+                <div className="space-y-1">
+                  <h2 className="text-sm font-semibold tracking-tight">Entrega</h2>
+                  <p className="text-sm text-muted-foreground">Preencha por partes — depois você escolhe o frete.</p>
+                </div>
 
-              <div className="grid gap-2">
-                <Label htmlFor="name">Nome</Label>
-                <Input
-                  id="name"
-                  autoComplete="name"
-                  placeholder="Seu nome completo"
-                  autoFocus
-                  {...form.register("name")}
-                />
-                {form.formState.errors.name && (
-                  <p className="text-sm font-medium text-destructive">{form.formState.errors.name.message}</p>
-                )}
-              </div>
-
-              <div className="grid gap-2">
-                <Label htmlFor="phone">Telefone / WhatsApp</Label>
-                <Input
-                  id="phone"
-                  inputMode="tel"
-                  autoComplete="tel"
-                  placeholder="(DDD) 90000-0000"
-                  {...form.register("phone")}
-                />
-                {form.formState.errors.phone && (
-                  <p className="text-sm font-medium text-destructive">{form.formState.errors.phone.message}</p>
-                )}
-              </div>
-
-              <div className="grid gap-4 sm:grid-cols-2">
                 <div className="grid gap-2">
-                  <Label htmlFor="cep">CEP</Label>
+                  <Label htmlFor="name">Nome</Label>
                   <Input
-                    id="cep"
-                    inputMode="numeric"
-                    autoComplete="postal-code"
-                    placeholder="00000-000"
-                    {...form.register("cep")}
+                    id="name"
+                    autoComplete="name"
+                    placeholder="Seu nome completo"
+                    autoFocus
+                    className={inputClass}
+                    {...form.register("name")}
                   />
-                  {form.formState.errors.cep && (
-                    <p className="text-sm font-medium text-destructive">{form.formState.errors.cep.message}</p>
+                  {form.formState.errors.name && (
+                    <p className="text-sm font-medium text-destructive">{form.formState.errors.name.message}</p>
                   )}
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="number">Número</Label>
+                  <Label htmlFor="phone">Telefone / WhatsApp</Label>
                   <Input
-                    id="number"
-                    inputMode="numeric"
-                    autoComplete="address-line2"
-                    placeholder="Ex.: 123"
-                    {...form.register("number")}
+                    id="phone"
+                    inputMode="tel"
+                    autoComplete="tel"
+                    placeholder="(DDD) 90000-0000"
+                    className={inputClass}
+                    {...form.register("phone")}
                   />
-                  {form.formState.errors.number && (
-                    <p className="text-sm font-medium text-destructive">{form.formState.errors.number.message}</p>
+                  {form.formState.errors.phone && (
+                    <p className="text-sm font-medium text-destructive">{form.formState.errors.phone.message}</p>
                   )}
                 </div>
-              </div>
 
-              <div className="grid gap-2">
-                <Label htmlFor="address">Endereço</Label>
-                <Input
-                  id="address"
-                  autoComplete="street-address"
-                  placeholder="Rua, bairro, complemento (se tiver)"
-                  {...form.register("address")}
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="grid gap-2">
+                    <Label htmlFor="cep">CEP</Label>
+                    <Input
+                      id="cep"
+                      inputMode="numeric"
+                      autoComplete="postal-code"
+                      placeholder="00000-000"
+                      className={inputClass}
+                      {...form.register("cep")}
+                    />
+                    {form.formState.errors.cep && (
+                      <p className="text-sm font-medium text-destructive">{form.formState.errors.cep.message}</p>
+                    )}
+                  </div>
+
+                  <div className="grid gap-2">
+                    <Label htmlFor="number">Número</Label>
+                    <Input
+                      id="number"
+                      inputMode="numeric"
+                      autoComplete="address-line2"
+                      placeholder="Ex.: 123"
+                      className={inputClass}
+                      {...form.register("number")}
+                    />
+                    {form.formState.errors.number && (
+                      <p className="text-sm font-medium text-destructive">{form.formState.errors.number.message}</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="grid gap-2">
+                  <Label htmlFor="address">Endereço</Label>
+                  <Input
+                    id="address"
+                    autoComplete="street-address"
+                    placeholder="Rua, bairro, complemento (se tiver)"
+                    className={inputClass}
+                    {...form.register("address")}
+                  />
+                  {form.formState.errors.address && (
+                    <p className="text-sm font-medium text-destructive">{form.formState.errors.address.message}</p>
+                  )}
+                </div>
+
+                <Separator />
+
+                <CheckoutUpsell
+                  checked={addTop}
+                  onCheckedChange={setAddTop}
+                  price={upsellTopPrice}
+                  imageSrc={upsellTopImage}
+                  imageAlt="Top Seamless preto"
                 />
-                {form.formState.errors.address && (
-                  <p className="text-sm font-medium text-destructive">{form.formState.errors.address.message}</p>
+              </section>
+            )}
+
+            {step === 2 && (
+              <section aria-label="Frete" className="space-y-5">
+                <div className="space-y-1">
+                  <h2 className="text-sm font-semibold tracking-tight">Frete</h2>
+                  <p className="text-sm text-muted-foreground">Escolha a opção para calcular o total.</p>
+                </div>
+
+                <CheckoutShipping
+                  value={form.watch("shipping")}
+                  onChange={(v) => form.setValue("shipping", v as FormValues["shipping"], { shouldValidate: true })}
+                  sedexPrice={sedexPrice}
+                  carrierPrice={carrierPrice}
+                />
+                {form.formState.errors.shipping && (
+                  <p className="text-sm font-medium text-destructive">{form.formState.errors.shipping.message}</p>
                 )}
-              </div>
-            </section>
+              </section>
+            )}
 
-            <Separator />
+            {step === 3 && (
+              <section aria-label="Revisão" className="space-y-5">
+                <div className="space-y-1">
+                  <h2 className="text-sm font-semibold tracking-tight">Revisão</h2>
+                  <p className="text-sm text-muted-foreground">Confirme tudo antes de gerar o Pix.</p>
+                </div>
 
-            <CheckoutUpsell
-              checked={addTop}
-              onCheckedChange={setAddTop}
-              price={upsellTopPrice}
-              imageSrc={upsellTopImage}
-              imageAlt="Top Seamless preto"
+                <div className="space-y-2 text-sm">
+                  <p className="text-muted-foreground">Nome</p>
+                  <p className="tracking-tight">{form.getValues("name") || "—"}</p>
+                  <Separator />
+                  <p className="text-muted-foreground">Telefone</p>
+                  <p className="tracking-tight">{form.getValues("phone") || "—"}</p>
+                  <Separator />
+                  <p className="text-muted-foreground">Endereço</p>
+                  <p className="tracking-tight">
+                    {form.getValues("address") ? (
+                      <>
+                        {form.getValues("address")} • Nº {form.getValues("number")} • CEP {form.getValues("cep")}
+                      </>
+                    ) : (
+                      "—"
+                    )}
+                  </p>
+                  <Separator />
+                  <p className="text-muted-foreground">Frete</p>
+                  <p className="tracking-tight">{form.watch("shipping") === "sedex" ? "Sedex (24h)" : "Transportadora (1–3 dias úteis)"}</p>
+                  <Separator />
+                  <p className="text-muted-foreground">Top</p>
+                  <p className="tracking-tight">{addTop ? "Sim (conjunto)" : "Não"}</p>
+                </div>
+              </section>
+            )}
+
+            <CheckoutStepActions
+              step={step}
+              canGoBack={step !== 1}
+              isLastStep={step === 3}
+              onBack={goBack}
+              onNext={goNext}
             />
           </form>
 
           <aside className="space-y-6 lg:sticky lg:top-24">
-            <CheckoutShipping
-              value={form.watch("shipping")}
-              onChange={(v) => form.setValue("shipping", v as FormValues["shipping"], { shouldValidate: true })}
-              sedexPrice={sedexPrice}
-              carrierPrice={carrierPrice}
-            />
-            {form.formState.errors.shipping && (
-              <p className="text-sm font-medium text-destructive">{form.formState.errors.shipping.message}</p>
-            )}
-
-            <Separator />
-
             <CheckoutOrderSummary
               title="Total"
               items={[
@@ -245,12 +335,9 @@ export default function Checkout() {
             />
 
             <div className="flex flex-col gap-2">
-              <Button type="submit" variant="hero" size="xl">
-                Gerar Pix (demo)
-              </Button>
               <Button type="button" variant="outline" onClick={() => navigate("/")}
               >
-                Voltar
+                Voltar ao produto
               </Button>
             </div>
           </aside>
