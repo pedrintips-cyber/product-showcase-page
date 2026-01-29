@@ -1,1 +1,4 @@
 project_id = "pjfnhqhjsoqxezkbjwwz"
+
+[functions.hura-create-transaction]
+verify_jwt = false

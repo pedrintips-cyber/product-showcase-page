@@ -16,8 +16,10 @@ import { CheckoutUpsell } from "@/components/checkout/CheckoutUpsell";
 import { CheckoutStepHeader } from "@/components/checkout/CheckoutStepHeader";
 import { CheckoutStepActions } from "@/components/checkout/CheckoutStepActions";
 import { CheckoutMobileSummaryBar } from "@/components/checkout/CheckoutMobileSummaryBar";
+import { PixPaymentDialog } from "@/components/checkout/PixPaymentDialog";
 
 import { useIsMobile } from "@/hooks/use-mobile";
+import { supabase } from "@/integrations/supabase/client";
 
 import upsellTopImage from "@/assets/upsell-top.jpg";
 
@@ -66,6 +68,10 @@ export default function Checkout() {
 
   const [addTop, setAddTop] = React.useState(false);
   const [step, setStep] = React.useState<Step>(1);
+  const [isCreatingPix, setIsCreatingPix] = React.useState(false);
+  const [pixDialogOpen, setPixDialogOpen] = React.useState(false);
+  const [pixCopyPaste, setPixCopyPaste] = React.useState<string>("");
+  const [pixQrUrl, setPixQrUrl] = React.useState<string | undefined>(undefined);
 
   const product =
     state.product ??
@@ -106,11 +112,90 @@ export default function Checkout() {
     { label: "Total", value: money(total) },
   ];
 
-  const onSubmit = (values: FormValues) => {
-    // Demo Pix: só confirma no frontend por enquanto.
-    toast.success("Checkout pronto (demo)", {
-      description: `Cliente: ${values.name} • CEP: ${values.cep} • Frete: ${values.shipping === "sedex" ? "Sedex 24h" : "Transportadora 1–3d"} • Top: ${addTop ? "Sim" : "Não"} • Total: ${money(total)}`,
-    });
+  const onSubmit = async (values: FormValues) => {
+    setIsCreatingPix(true);
+    try {
+      const amount = Math.round(total * 100);
+      const postback_url = `${window.location.origin}/postback/hura`; // URL de teste por enquanto
+
+      const { data, error } = await supabase.functions.invoke("hura-create-transaction", {
+        body: {
+          amount,
+          postback_url,
+          customer: {
+            name: values.name,
+            phone: values.phone,
+            document: { type: "cpf" },
+          },
+          items: [
+            {
+              name: product.name,
+              unit_amount: Math.round(product.unitPrice * 100),
+              quantity: product.qty,
+              metadata: { color: product.color, size: product.size },
+            },
+            ...(addTop
+              ? [
+                  {
+                    name: "Top Seamless",
+                    unit_amount: Math.round(upsellTopPrice * 100),
+                    quantity: 1,
+                    metadata: { upsell: true },
+                  },
+                ]
+              : []),
+          ],
+          shipping: {
+            method: values.shipping,
+            cep: values.cep,
+            address: values.address,
+            number: values.number,
+            price: Math.round(shippingPrice * 100),
+          },
+          metadata: {
+            brand: BRAND,
+            source: "checkout",
+          },
+        },
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      const responseData = (data as any)?.data ?? data;
+
+      const copyAndPaste =
+        responseData?.pix?.copy_and_paste ||
+        responseData?.pix?.copyAndPaste ||
+        responseData?.pix?.emv ||
+        responseData?.pix?.code;
+
+      const qr =
+        responseData?.pix?.qr_code_image_url ||
+        responseData?.pix?.qrCodeImageUrl ||
+        responseData?.pix?.qrcode_image_url;
+
+      if (!copyAndPaste || typeof copyAndPaste !== "string") {
+        toast.error("Pix criado, mas não encontrei o código copia-e-cola na resposta", {
+          description: "Me mande um exemplo do JSON retornado pela Hura que eu ajusto o mapeamento.",
+        });
+        return;
+      }
+
+      setPixCopyPaste(copyAndPaste);
+      setPixQrUrl(typeof qr === "string" ? qr : undefined);
+      setPixDialogOpen(true);
+
+      toast.success("Pix gerado", {
+        description: `Total: ${money(total)} • Frete: ${values.shipping === "sedex" ? "Sedex 24h" : "Transportadora 1–3d"}`,
+      });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Erro inesperado";
+      toast.error("Não foi possível gerar o Pix", { description: message });
+    } finally {
+      setIsCreatingPix(false);
+    }
   };
 
   const inputClass = "h-12 px-4 text-base";
@@ -326,6 +411,8 @@ export default function Checkout() {
                 isLastStep={step === 3}
                 onBack={goBack}
                 onNext={goNext}
+                isNextDisabled={step === 3 ? isCreatingPix : undefined}
+                submitLabel={isCreatingPix ? "Gerando Pix..." : "Gerar Pix"}
               />
             </div>
           </form>
@@ -346,6 +433,13 @@ export default function Checkout() {
       </main>
 
       {isMobile && <CheckoutMobileSummaryBar title="Total" items={summaryItems} totalValue={money(total)} />}
+
+      <PixPaymentDialog
+        open={pixDialogOpen}
+        onOpenChange={setPixDialogOpen}
+        copyAndPaste={pixCopyPaste}
+        qrCodeImageUrl={pixQrUrl}
+      />
 
       <StoreFooter brandName={BRAND} />
     </div>
