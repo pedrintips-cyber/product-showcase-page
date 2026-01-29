@@ -19,7 +19,6 @@ export default function AuthPage() {
   const location = useLocation();
   const from = (location.state as any)?.from as string | undefined;
 
-  const [mode, setMode] = React.useState<"login" | "signup">("login");
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [loading, setLoading] = React.useState(false);
@@ -40,29 +39,16 @@ export default function AuthPage() {
 
     setLoading(true);
     try {
-      if (mode === "login") {
-        const { error } = await supabase.auth.signInWithPassword({
-          email: parsed.data.email,
-          password: parsed.data.password,
-        });
-        if (error) throw error;
-        toast.success("Bem-vindo de volta!");
-        navigate(from ?? "/", { replace: true });
-      } else {
-        const redirectUrl = `${window.location.origin}/`;
-        const { error } = await supabase.auth.signUp({
-          email: parsed.data.email,
-          password: parsed.data.password,
-          options: { emailRedirectTo: redirectUrl },
-        });
-        if (error) throw error;
-        toast.success("Conta criada!", {
-          description: "Se precisar, verifique seu e-mail para confirmar o acesso.",
-        });
-      }
+      const { error } = await supabase.auth.signInWithPassword({
+        email: parsed.data.email,
+        password: parsed.data.password,
+      });
+      if (error) throw error;
+      toast.success("Login realizado");
+      navigate(from ?? "/admin/leads", { replace: true });
     } catch (err) {
       const message = err instanceof Error ? err.message : "Erro inesperado";
-      toast.error("Não foi possível continuar", { description: message });
+      toast.error("Não foi possível entrar", { description: message });
     } finally {
       setLoading(false);
     }
@@ -72,11 +58,9 @@ export default function AuthPage() {
     <div className="min-h-screen bg-background">
       <main className="mx-auto w-full max-w-md px-4 py-10">
         <header className="space-y-2">
-          <h1 className="text-balance text-2xl font-semibold tracking-tight">
-            {mode === "login" ? "Entrar" : "Criar conta"}
-          </h1>
+          <h1 className="text-balance text-2xl font-semibold tracking-tight">Entrar</h1>
           <p className="text-sm text-muted-foreground">
-            Acesso necessário para abrir o painel administrativo.
+            Acesso restrito. Não existe cadastro.
           </p>
         </header>
 
@@ -84,7 +68,7 @@ export default function AuthPage() {
 
         <form onSubmit={submit} className="space-y-4">
           <div className="grid gap-2">
-            <Label htmlFor="email">E-mail</Label>
+            <Label htmlFor="email">Login</Label>
             <Input
               id="email"
               autoComplete="email"
@@ -92,7 +76,7 @@ export default function AuthPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="h-12 px-4 text-base"
-              placeholder="seuemail@exemplo.com"
+              placeholder="Seu e-mail"
             />
           </div>
 
@@ -101,7 +85,7 @@ export default function AuthPage() {
             <Input
               id="password"
               type="password"
-              autoComplete={mode === "login" ? "current-password" : "new-password"}
+              autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="h-12 px-4 text-base"
@@ -110,28 +94,8 @@ export default function AuthPage() {
           </div>
 
           <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Aguarde..." : mode === "login" ? "Entrar" : "Criar conta"}
+            {loading ? "Aguarde..." : "Entrar"}
           </Button>
-
-          <div className="text-center text-sm text-muted-foreground">
-            {mode === "login" ? (
-              <button
-                type="button"
-                className="underline underline-offset-4"
-                onClick={() => setMode("signup")}
-              >
-                Não tem conta? Cadastre-se
-              </button>
-            ) : (
-              <button
-                type="button"
-                className="underline underline-offset-4"
-                onClick={() => setMode("login")}
-              >
-                Já tem conta? Entrar
-              </button>
-            )}
-          </div>
         </form>
       </main>
     </div>
