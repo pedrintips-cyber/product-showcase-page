@@ -25,8 +25,20 @@ type CreatePixRequest = {
     quantity: number;
     metadata?: Record<string, unknown>;
   }>;
-  shipping?: Record<string, unknown>;
+  shipping?: {
+    // we accept a simple shape from the frontend and normalize it to what Hura expects
+    cep?: string;
+    address?: string;
+    number?: string;
+    method?: string;
+    price?: number;
+    [key: string]: unknown;
+  };
 };
+
+function asString(value: unknown): string | undefined {
+  return typeof value === "string" && value.trim() ? value : undefined;
+}
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -78,22 +90,84 @@ Deno.serve(async (req) => {
 
   const auth = btoa(`${HURA_PUBLIC_KEY}:${HURA_SECRET_KEY}`);
 
-  const body = {
-    payment_method: "pix",
-    amount: payload.amount,
-    postback_url,
-    customer: {
-      name: payload.customer?.name,
-      phone: payload.customer?.phone,
-      // We are intentionally trying without CPF per current product decision.
-      // If Hura requires it, the API will respond with 400 validation error.
-      document: payload.customer?.document,
-    },
-    items: payload.items,
-    shipping: payload.shipping,
-    metadata: payload.metadata ?? {},
-    ip: req.headers.get("x-forwarded-for") || undefined,
+  const shippingAddressText = asString(payload.shipping?.address);
+  const shippingNumber = asString(payload.shipping?.number);
+  const shippingCep = asString(payload.shipping?.cep);
+
+  // Hura is returning validation errors indicating:
+  // - a root `request` object is required
+  // - `shipping.address` must be an object, not a string
+  const normalizedShipping = {
+    ...payload.shipping,
+    address: shippingAddressText
+      ? {
+          street: shippingAddressText,
+          number: shippingNumber,
+          zipcode: shippingCep,
+        }
+      : payload.shipping?.address,
   };
+
+  const customer = {
+    name: payload.customer?.name,
+    phone: payload.customer?.phone,
+    // We are intentionally trying without CPF per current product decision.
+    // If Hura requires it, the API will respond with 400 validation error.
+    document: payload.customer?.document,
+  };
+  const metadata = payload.metadata ?? {};
+
+  // Hura is clearly expecting a `request` wrapper. Their validation messages also
+  // reference PascalCase fields (Metadata, Customer.Phone). To maximize
+  // compatibility, we send both camelCase + PascalCase for the critical fields.
+  const Customer = {
+    Name: customer.name,
+    Phone: customer.phone,
+    Document: customer.document
+      ? {
+          Type: (customer.document as any)?.type,
+          Number: (customer.document as any)?.number,
+        }
+      : undefined,
+  };
+
+  const rootIp = req.headers.get("x-forwarded-for") || undefined;
+
+  const body = {
+    // Some environments of the API require this wrapper name.
+    request: {
+      payment_method: "pix",
+      amount: payload.amount,
+      postback_url,
+    },
+
+    // And validation errors indicate these are required at the root level.
+    customer,
+    Customer,
+    items: payload.items,
+    Items: payload.items,
+    shipping: normalizedShipping,
+    Shipping: normalizedShipping,
+    metadata,
+    Metadata: metadata,
+    ip: rootIp,
+    Ip: rootIp,
+  };
+
+  console.log("Hura outbound payload shape", {
+    has_request: !!(body as any).request,
+    has_customer: !!(body as any).customer,
+    customer_phone: (body as any).customer?.phone,
+    has_Customer: !!(body as any).Customer,
+    Customer_Phone: (body as any).Customer?.Phone,
+    has_metadata: !!(body as any).metadata,
+    metadata_keys: Object.keys((body as any).metadata ?? {}),
+    has_Metadata: !!(body as any).Metadata,
+    Metadata_keys: Object.keys((body as any).Metadata ?? {}),
+    has_shipping: !!(body as any).shipping,
+    shipping_address_type: typeof (body as any).shipping?.address,
+    shipping_address_keys: Object.keys((body as any).shipping?.address ?? {}),
+  });
 
   try {
     const resp = await fetch("https://api.hurapayments.com.br/v1/payment-transaction/create", {
