@@ -14,16 +14,141 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      checkout_leads: {
+        Row: {
+          add_top: boolean
+          address: string
+          cep: string
+          cpf: string
+          created_at: string
+          discord_batch_id: string | null
+          email: string
+          id: string
+          name: string
+          number: string
+          phone: string
+          pix_identifier: string | null
+          product_color: string | null
+          product_name: string
+          product_size: string | null
+          qty: number
+          sent_to_discord: boolean
+          shipping: string
+          shipping_price: number
+          subtotal: number
+          total: number
+        }
+        Insert: {
+          add_top?: boolean
+          address: string
+          cep: string
+          cpf: string
+          created_at?: string
+          discord_batch_id?: string | null
+          email: string
+          id?: string
+          name: string
+          number: string
+          phone: string
+          pix_identifier?: string | null
+          product_color?: string | null
+          product_name: string
+          product_size?: string | null
+          qty?: number
+          sent_to_discord?: boolean
+          shipping: string
+          shipping_price: number
+          subtotal: number
+          total: number
+        }
+        Update: {
+          add_top?: boolean
+          address?: string
+          cep?: string
+          cpf?: string
+          created_at?: string
+          discord_batch_id?: string | null
+          email?: string
+          id?: string
+          name?: string
+          number?: string
+          phone?: string
+          pix_identifier?: string | null
+          product_color?: string | null
+          product_name?: string
+          product_size?: string | null
+          qty?: number
+          sent_to_discord?: boolean
+          shipping?: string
+          shipping_price?: number
+          subtotal?: number
+          total?: number
+        }
+        Relationships: []
+      }
+      discord_lead_batches: {
+        Row: {
+          created_at: string
+          discord_message_id: string | null
+          first_lead_at: string | null
+          id: string
+          last_lead_at: string | null
+          lead_count: number
+        }
+        Insert: {
+          created_at?: string
+          discord_message_id?: string | null
+          first_lead_at?: string | null
+          id?: string
+          last_lead_at?: string | null
+          lead_count: number
+        }
+        Update: {
+          created_at?: string
+          discord_message_id?: string | null
+          first_lead_at?: string | null
+          id?: string
+          last_lead_at?: string | null
+          lead_count?: number
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +275,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+    },
   },
 } as const

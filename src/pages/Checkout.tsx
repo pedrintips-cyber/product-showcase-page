@@ -133,6 +133,19 @@ export default function Checkout() {
             email: values.email,
             phone: values.phone,
           },
+          delivery: {
+            cep: values.cep,
+            address: values.address,
+            number: values.number,
+          },
+          order: {
+            product,
+            addTop,
+            shipping: values.shipping,
+            subtotal: Number(subtotal.toFixed(2)),
+            shippingPrice: Number(shippingPrice.toFixed(2)),
+            total: Number(total.toFixed(2)),
+          },
         },
       });
 
