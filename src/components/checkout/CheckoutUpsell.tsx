@@ -9,19 +9,20 @@ type Props = {
   price: number;
   imageSrc: string;
   imageAlt: string;
+  productName: string;
 };
 
 const money = (value: number) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
 
-export function CheckoutUpsell({ checked, onCheckedChange, price, imageSrc, imageAlt }: Props) {
+export function CheckoutUpsell({ checked, onCheckedChange, price, imageSrc, imageAlt, productName }: Props) {
   return (
     <section aria-label="Adicionar conjunto" className="space-y-3">
       <div className="flex items-start justify-between gap-4">
         <div className="space-y-1">
           <h2 className="text-sm font-semibold tracking-tight">Complete o conjunto</h2>
           <p className="text-sm text-muted-foreground">
-            Leve o Top Seamless junto com a legging — melhora a sustentação e fecha o look.
+            Leve o {productName} junto com a legging — melhora a sustentação e fecha o look.
           </p>
         </div>
 
@@ -50,7 +51,7 @@ export function CheckoutUpsell({ checked, onCheckedChange, price, imageSrc, imag
             className="mt-0.5"
           />
           <span className="grid gap-1">
-            <span className="text-sm font-medium">Adicionar Top Seamless (+{money(price)})</span>
+            <span className="text-sm font-medium">Adicionar {productName} (+{money(price)})</span>
             <span className="text-sm text-muted-foreground">
               Item extra no pedido (produto). Se marcar, entra no total automaticamente.
             </span>
