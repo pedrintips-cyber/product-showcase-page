@@ -140,7 +140,13 @@ export default function Checkout() {
 
               <div className="grid gap-2">
                 <Label htmlFor="name">Nome</Label>
-                <Input id="name" autoComplete="name" {...form.register("name")} />
+                <Input
+                  id="name"
+                  autoComplete="name"
+                  placeholder="Seu nome completo"
+                  autoFocus
+                  {...form.register("name")}
+                />
                 {form.formState.errors.name && (
                   <p className="text-sm font-medium text-destructive">{form.formState.errors.name.message}</p>
                 )}
@@ -148,7 +154,13 @@ export default function Checkout() {
 
               <div className="grid gap-2">
                 <Label htmlFor="phone">Telefone / WhatsApp</Label>
-                <Input id="phone" inputMode="tel" autoComplete="tel" {...form.register("phone")} />
+                <Input
+                  id="phone"
+                  inputMode="tel"
+                  autoComplete="tel"
+                  placeholder="(DDD) 90000-0000"
+                  {...form.register("phone")}
+                />
                 {form.formState.errors.phone && (
                   <p className="text-sm font-medium text-destructive">{form.formState.errors.phone.message}</p>
                 )}
@@ -171,7 +183,13 @@ export default function Checkout() {
 
                 <div className="grid gap-2">
                   <Label htmlFor="number">Número</Label>
-                  <Input id="number" inputMode="numeric" autoComplete="address-line2" {...form.register("number")} />
+                  <Input
+                    id="number"
+                    inputMode="numeric"
+                    autoComplete="address-line2"
+                    placeholder="Ex.: 123"
+                    {...form.register("number")}
+                  />
                   {form.formState.errors.number && (
                     <p className="text-sm font-medium text-destructive">{form.formState.errors.number.message}</p>
                   )}
@@ -180,7 +198,12 @@ export default function Checkout() {
 
               <div className="grid gap-2">
                 <Label htmlFor="address">Endereço</Label>
-                <Input id="address" autoComplete="street-address" {...form.register("address")} />
+                <Input
+                  id="address"
+                  autoComplete="street-address"
+                  placeholder="Rua, bairro, complemento (se tiver)"
+                  {...form.register("address")}
+                />
                 {form.formState.errors.address && (
                   <p className="text-sm font-medium text-destructive">{form.formState.errors.address.message}</p>
                 )}

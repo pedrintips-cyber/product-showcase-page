@@ -31,7 +31,7 @@ export function CheckoutUpsell({ checked, onCheckedChange, price, imageSrc, imag
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-[128px_1fr] sm:items-start">
+      <div className="grid grid-cols-[72px_1fr] items-start gap-3 sm:grid-cols-[96px_1fr] sm:gap-4">
         <div className="overflow-hidden rounded-md border">
           <AspectRatio ratio={1}>
             <img
@@ -44,17 +44,17 @@ export function CheckoutUpsell({ checked, onCheckedChange, price, imageSrc, imag
         </div>
 
         <label className="flex items-start gap-3">
-        <Checkbox
-          checked={checked}
-          onCheckedChange={(v) => onCheckedChange(v === true)}
-          className="mt-0.5"
-        />
-        <span className="grid gap-1">
+          <Checkbox
+            checked={checked}
+            onCheckedChange={(v) => onCheckedChange(v === true)}
+            className="mt-0.5"
+          />
+          <span className="grid gap-1">
             <span className="text-sm font-medium">Adicionar Top Seamless (+{money(price)})</span>
             <span className="text-sm text-muted-foreground">
-              Item extra no pedido (não é taxa). Se marcar, entra no total automaticamente.
+              Item extra no pedido (produto). Se marcar, entra no total automaticamente.
             </span>
-        </span>
+          </span>
         </label>
       </div>
     </section>
