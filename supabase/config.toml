@@ -1,4 +1,4 @@
 project_id = "pjfnhqhjsoqxezkbjwwz"
 
-[functions.hura-create-transaction]
+[functions.sync-cash-in]
 verify_jwt = false
