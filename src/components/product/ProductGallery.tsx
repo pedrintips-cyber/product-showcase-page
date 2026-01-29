@@ -21,8 +21,8 @@ export function ProductGallery({ images }: ProductGalleryProps) {
   }, [images]);
 
   return (
-    <section aria-label="Galeria de fotos" className="space-y-3">
-      <div className="relative overflow-hidden rounded-2xl">
+    <section aria-label="Galeria de fotos" className="space-y-4">
+      <div className="relative overflow-hidden rounded-2xl border border-border/60">
         <Carousel
           opts={{ align: "start", loop: true }}
           setApi={(api) => {
@@ -61,8 +61,29 @@ export function ProductGallery({ images }: ProductGalleryProps) {
         </Carousel>
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
-        {images.slice(0, 3).map((img, idx) => (
+      {images.length > 1 ? (
+        <div className="flex items-center justify-center gap-2">
+          {images.map((_, idx) => (
+            <button
+              key={idx}
+              type="button"
+              onClick={() => {
+                setSelected(idx);
+                apiRef.current?.scrollTo(idx);
+              }}
+              aria-label={`Ir para foto ${idx + 1}`}
+              className={cn(
+                "h-2 w-2 rounded-full transition-transform",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                selected === idx ? "bg-primary" : "bg-border",
+              )}
+            />
+          ))}
+        </div>
+      ) : null}
+
+      <div className="grid grid-cols-4 gap-3">
+        {images.slice(0, 4).map((img, idx) => (
           <button
             key={idx}
             type="button"
@@ -78,7 +99,7 @@ export function ProductGallery({ images }: ProductGalleryProps) {
             )}
             aria-label={`Selecionar foto ${idx + 1}`}
           >
-            <img src={img.src} alt={img.alt} loading="lazy" className="aspect-square w-full object-cover" />
+            <img src={img.src} alt={img.alt} loading="lazy" className="aspect-[3/4] w-full object-contain bg-background" />
             <div
               className={cn(
                 "pointer-events-none absolute inset-0 opacity-0 transition-opacity group-hover:opacity-100",
