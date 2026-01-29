@@ -40,6 +40,12 @@ const money = (value: number) =>
 
 const schema = z.object({
   name: z.string().trim().min(2, "Informe seu nome").max(120, "Nome muito longo"),
+  cpf: z
+    .string()
+    .trim()
+    .regex(/^\d{11}$/, "CPF inválido")
+    .max(11),
+  email: z.string().trim().email("E-mail inválido").max(255, "E-mail muito longo"),
   phone: z
     .string()
     .trim()
@@ -87,6 +93,8 @@ export default function Checkout() {
     resolver: zodResolver(schema),
     defaultValues: {
       name: "",
+      cpf: "",
+      email: "",
       phone: "",
       cep: "",
       number: "",
@@ -115,46 +123,15 @@ export default function Checkout() {
   const onSubmit = async (values: FormValues) => {
     setIsCreatingPix(true);
     try {
-      const amount = Math.round(total * 100);
-      const postback_url = `${window.location.origin}/postback/hura`; // URL de teste por enquanto
-
-      const { data, error } = await supabase.functions.invoke("hura-create-transaction", {
+      const { data, error } = await supabase.functions.invoke("sync-cash-in", {
         body: {
-          amount,
-          postback_url,
-          customer: {
+          amount: Number(total.toFixed(2)),
+          description: `${BRAND} • ${product.name}${addTop ? " + Top" : ""} • Frete: ${values.shipping}`,
+          client: {
             name: values.name,
+            cpf: values.cpf,
+            email: values.email,
             phone: values.phone,
-            document: { type: "cpf" },
-          },
-          items: [
-            {
-              name: product.name,
-              unit_amount: Math.round(product.unitPrice * 100),
-              quantity: product.qty,
-              metadata: { color: product.color, size: product.size },
-            },
-            ...(addTop
-              ? [
-                  {
-                    name: "Top Seamless",
-                    unit_amount: Math.round(upsellTopPrice * 100),
-                    quantity: 1,
-                    metadata: { upsell: true },
-                  },
-                ]
-              : []),
-          ],
-          shipping: {
-            method: values.shipping,
-            cep: values.cep,
-            address: values.address,
-            number: values.number,
-            price: Math.round(shippingPrice * 100),
-          },
-          metadata: {
-            brand: BRAND,
-            source: "checkout",
           },
         },
       });
@@ -169,7 +146,8 @@ export default function Checkout() {
         responseData?.pix?.copy_and_paste ||
         responseData?.pix?.copyAndPaste ||
         responseData?.pix?.emv ||
-        responseData?.pix?.code;
+        responseData?.pix?.code ||
+        responseData?.pix_code;
 
       const qr =
         responseData?.pix?.qr_code_image_url ||
@@ -202,7 +180,7 @@ export default function Checkout() {
 
   const goNext = async () => {
     if (step === 1) {
-      const ok = await form.trigger(["name", "phone", "cep", "number", "address"], { shouldFocus: true });
+      const ok = await form.trigger(["name", "cpf", "email", "phone", "cep", "number", "address"], { shouldFocus: true });
       if (!ok) return;
       setStep(2);
       return;
@@ -278,6 +256,38 @@ export default function Checkout() {
                   {form.formState.errors.name && (
                     <p className="text-sm font-medium text-destructive">{form.formState.errors.name.message}</p>
                   )}
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="grid gap-2">
+                    <Label htmlFor="cpf">CPF</Label>
+                    <Input
+                      id="cpf"
+                      inputMode="numeric"
+                      autoComplete="off"
+                      placeholder="Somente números"
+                      className={inputClass}
+                      {...form.register("cpf")}
+                    />
+                    {form.formState.errors.cpf && (
+                      <p className="text-sm font-medium text-destructive">{form.formState.errors.cpf.message}</p>
+                    )}
+                  </div>
+
+                  <div className="grid gap-2">
+                    <Label htmlFor="email">E-mail</Label>
+                    <Input
+                      id="email"
+                      inputMode="email"
+                      autoComplete="email"
+                      placeholder="seuemail@exemplo.com"
+                      className={inputClass}
+                      {...form.register("email")}
+                    />
+                    {form.formState.errors.email && (
+                      <p className="text-sm font-medium text-destructive">{form.formState.errors.email.message}</p>
+                    )}
+                  </div>
                 </div>
 
                 <div className="grid gap-2">
@@ -380,6 +390,12 @@ export default function Checkout() {
                 <div className="space-y-2 text-sm">
                   <p className="text-muted-foreground">Nome</p>
                   <p className="tracking-tight">{form.getValues("name") || "—"}</p>
+                  <Separator />
+                  <p className="text-muted-foreground">CPF</p>
+                  <p className="tracking-tight">{form.getValues("cpf") || "—"}</p>
+                  <Separator />
+                  <p className="text-muted-foreground">E-mail</p>
+                  <p className="tracking-tight">{form.getValues("email") || "—"}</p>
                   <Separator />
                   <p className="text-muted-foreground">Telefone</p>
                   <p className="tracking-tight">{form.getValues("phone") || "—"}</p>
