@@ -40,6 +40,13 @@ function asString(value: unknown): string | undefined {
   return typeof value === "string" && value.trim() ? value : undefined;
 }
 
+function digitsOnly(value: unknown): string | undefined {
+  const s = asString(value);
+  if (!s) return undefined;
+  const d = s.replace(/\D+/g, "");
+  return d || undefined;
+}
+
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
@@ -110,12 +117,14 @@ Deno.serve(async (req) => {
 
   const customer = {
     name: payload.customer?.name,
-    phone: payload.customer?.phone,
+    // Many payment APIs require phone without mask.
+    phone: digitsOnly(payload.customer?.phone) ?? payload.customer?.phone,
     // We are intentionally trying without CPF per current product decision.
     // If Hura requires it, the API will respond with 400 validation error.
     document: payload.customer?.document,
   };
   const metadata = payload.metadata ?? {};
+  const metadataJson = JSON.stringify(metadata);
 
   // Hura is clearly expecting a `request` wrapper. Their validation messages also
   // reference PascalCase fields (Metadata, Customer.Phone). To maximize
@@ -133,25 +142,29 @@ Deno.serve(async (req) => {
 
   const rootIp = req.headers.get("x-forwarded-for") || undefined;
 
-  const body = {
-    // Some environments of the API require this wrapper name.
-    request: {
-      payment_method: "pix",
-      amount: payload.amount,
-      postback_url,
-    },
-
-    // And validation errors indicate these are required at the root level.
+  const requestPayload = {
+    payment_method: "pix",
+    amount: payload.amount,
+    postback_url,
     customer,
-    Customer,
+    Customer: {
+      ...Customer,
+      Phone: digitsOnly(Customer.Phone) ?? Customer.Phone,
+    },
     items: payload.items,
     Items: payload.items,
     shipping: normalizedShipping,
     Shipping: normalizedShipping,
     metadata,
     Metadata: metadata,
+    MetadataJson: metadataJson,
     ip: rootIp,
     Ip: rootIp,
+  };
+
+  const body = {
+    request: requestPayload,
+    Request: requestPayload,
   };
 
   console.log("Hura outbound payload shape", {
@@ -170,15 +183,24 @@ Deno.serve(async (req) => {
   });
 
   try {
-    const resp = await fetch("https://api.hurapayments.com.br/v1/payment-transaction/create", {
-      method: "POST",
-      headers: {
-        accept: "application/json",
-        "content-type": "application/json",
-        authorization: `Basic ${auth}`,
-      },
-      body: JSON.stringify(body),
-    });
+    const callHura = async (url: string) => {
+      return await fetch(url, {
+        method: "POST",
+        headers: {
+          accept: "application/json",
+          "content-type": "application/json",
+          authorization: `Basic ${auth}`,
+        },
+        body: JSON.stringify(body),
+      });
+    };
+
+    // Some docs show plural, others singular. We'll try plural first.
+    let resp = await callHura("https://api.hurapayments.com.br/v1/payment-transactions/create");
+    if (resp.status === 404) {
+      await resp.text(); // consume
+      resp = await callHura("https://api.hurapayments.com.br/v1/payment-transaction/create");
+    }
 
     const text = await resp.text();
     let data: unknown = text;
