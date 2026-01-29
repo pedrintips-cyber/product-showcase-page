@@ -53,7 +53,7 @@ function downloadText(filename: string, text: string) {
   URL.revokeObjectURL(url);
 }
 
-export default function AdminLeadsPage() {
+const AdminLeadsPage = React.forwardRef<HTMLDivElement>(function AdminLeadsPage(_, ref) {
   const { signOut } = useAuth();
   const [limit] = React.useState(200);
 
@@ -131,7 +131,7 @@ export default function AdminLeadsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div ref={ref} className="min-h-screen bg-background">
       <main className="mx-auto w-full max-w-screen-2xl px-4 py-8 sm:px-6 lg:px-10">
         <header className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div className="space-y-1">
@@ -229,4 +229,6 @@ export default function AdminLeadsPage() {
       </main>
     </div>
   );
-}
+});
+
+export default AdminLeadsPage;
