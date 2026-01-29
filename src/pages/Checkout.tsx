@@ -21,7 +21,7 @@ import { PixPaymentDialog } from "@/components/checkout/PixPaymentDialog";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
 
-import upsellTopImage from "@/assets/upsell-top.jpg";
+import upsellTopImage from "@/assets/upsell-top-puma.webp";
 
 const BRAND = "Blumi";
 
@@ -126,7 +126,7 @@ export default function Checkout() {
       const { data, error } = await supabase.functions.invoke("sync-cash-in", {
         body: {
           amount: Number(total.toFixed(2)),
-          description: `${BRAND} • ${product.name}${addTop ? " + Top" : ""} • Frete: ${values.shipping}`,
+          description: `${BRAND} • ${product.name}${addTop ? " + Top Puma" : ""} • Frete: ${values.shipping}`,
           client: {
             name: values.name,
             cpf: values.cpf,
@@ -358,7 +358,8 @@ export default function Checkout() {
                   onCheckedChange={setAddTop}
                   price={upsellTopPrice}
                   imageSrc={upsellTopImage}
-                  imageAlt="Top Seamless preto"
+                  imageAlt="Top Puma preto"
+                  productName="Top Puma"
                 />
               </section>
             )}
