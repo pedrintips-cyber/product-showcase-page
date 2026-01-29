@@ -16,6 +16,9 @@ import { CheckoutShipping } from "@/components/checkout/CheckoutShipping";
 import { CheckoutUpsell } from "@/components/checkout/CheckoutUpsell";
 import { CheckoutStepHeader } from "@/components/checkout/CheckoutStepHeader";
 import { CheckoutStepActions } from "@/components/checkout/CheckoutStepActions";
+import { CheckoutMobileSummaryBar } from "@/components/checkout/CheckoutMobileSummaryBar";
+
+import { useIsMobile } from "@/hooks/use-mobile";
 
 import upsellTopImage from "@/assets/upsell-top.jpg";
 
@@ -60,6 +63,8 @@ export default function Checkout() {
   const location = useLocation();
   const state = (location.state || {}) as CheckoutState;
 
+  const isMobile = useIsMobile();
+
   const [addTop, setAddTop] = React.useState(false);
   const [step, setStep] = React.useState<Step>(1);
 
@@ -94,6 +99,13 @@ export default function Checkout() {
   const upsellTopPrice = 13;
   const subtotal = product.unitPrice * product.qty + (addTop ? upsellTopPrice : 0);
   const total = subtotal + shippingPrice;
+
+  const summaryItems = [
+    { label: "Subtotal", value: money(product.unitPrice * product.qty) },
+    { label: "Top", value: addTop ? money(upsellTopPrice) : "—" },
+    { label: "Frete", value: shippingPrice === 0 ? "Grátis" : money(shippingPrice) },
+    { label: "Total", value: money(total) },
+  ];
 
   const onSubmit = (values: FormValues) => {
     // Demo Pix: só confirma no frontend por enquanto.
@@ -131,7 +143,7 @@ export default function Checkout() {
     <div className="min-h-screen bg-background">
       <ProductHeader brandName={BRAND} />
 
-      <main className="mx-auto w-full max-w-screen-2xl px-4 py-8 sm:px-6 lg:px-10 lg:py-10">
+      <main className="mx-auto w-full max-w-screen-2xl px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
         <header className="flex flex-col gap-2">
           <h1 className="text-balance text-2xl font-semibold tracking-tight sm:text-3xl">Checkout</h1>
           <div className="text-sm text-muted-foreground">
@@ -141,14 +153,14 @@ export default function Checkout() {
           </div>
         </header>
 
-        <Separator className="my-6 sm:my-8" />
+        <Separator className="my-4 sm:my-6" />
 
         <CheckoutStepHeader step={step} />
 
-        <Separator className="my-6 sm:my-8" />
+        <Separator className="my-4 sm:my-6" />
 
-        <div className="grid gap-8 lg:gap-12 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-start">
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <div className="grid gap-6 lg:gap-12 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-start">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pb-20 sm:pb-0">
             <section aria-label="Resumo do pedido" className="space-y-3">
               <div className="space-y-1">
                 <h2 className="text-sm font-semibold tracking-tight">Seu pedido</h2>
@@ -314,35 +326,33 @@ export default function Checkout() {
               </section>
             )}
 
-            <CheckoutStepActions
-              step={step}
-              canGoBack={step !== 1}
-              isLastStep={step === 3}
-              onBack={goBack}
-              onNext={goNext}
-            />
+            <div className="sticky bottom-0 -mx-4 border-t border-border bg-background px-4 py-3 sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:px-0 sm:py-0">
+              <CheckoutStepActions
+                step={step}
+                canGoBack={step !== 1}
+                isLastStep={step === 3}
+                onBack={goBack}
+                onNext={goNext}
+              />
+            </div>
           </form>
 
-          <aside className="space-y-6 lg:sticky lg:top-24">
-            <CheckoutOrderSummary
-              title="Total"
-              items={[
-                { label: "Subtotal", value: money(product.unitPrice * product.qty) },
-                { label: "Top", value: addTop ? money(upsellTopPrice) : "—" },
-                { label: "Frete", value: shippingPrice === 0 ? "Grátis" : money(shippingPrice) },
-                { label: "Total", value: money(total) },
-              ]}
-            />
+          {!isMobile && (
+            <aside className="space-y-6 lg:sticky lg:top-24">
+              <CheckoutOrderSummary title="Total" items={summaryItems} />
 
-            <div className="flex flex-col gap-2">
-              <Button type="button" variant="outline" onClick={() => navigate("/")}
-              >
-                Voltar ao produto
-              </Button>
-            </div>
-          </aside>
+              <div className="flex flex-col gap-2">
+                <Button type="button" variant="outline" onClick={() => navigate("/")}
+                >
+                  Voltar ao produto
+                </Button>
+              </div>
+            </aside>
+          )}
         </div>
       </main>
+
+      {isMobile && <CheckoutMobileSummaryBar title="Total" items={summaryItems} totalValue={money(total)} />}
 
       <StoreFooter brandName={BRAND} />
     </div>
