@@ -2,3 +2,6 @@ project_id = "pjfnhqhjsoqxezkbjwwz"
 
 [functions.sync-cash-in]
 verify_jwt = false
+
+[functions.admin-bootstrap]
+verify_jwt = false

@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import Checkout from "./pages/Checkout";
 import AuthPage from "./pages/Auth";
 import AdminLeadsPage from "./pages/admin/Leads";
+import AdminBootstrapPage from "./pages/admin/Bootstrap";
 import NotFound from "./pages/NotFound";
 import { AuthProvider } from "@/auth/AuthProvider";
 import { ProtectedRoute } from "@/auth/ProtectedRoute";
@@ -24,6 +25,15 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/auth" element={<AuthPage />} />
+
+            <Route
+              path="/admin/bootstrap"
+              element={
+                <ProtectedRoute>
+                  <AdminBootstrapPage />
+                </ProtectedRoute>
+              }
+            />
 
             <Route
               path="/admin/leads"
